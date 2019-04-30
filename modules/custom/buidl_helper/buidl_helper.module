@@ -1,0 +1,62 @@
+<?php
+
+use Drupal\pathauto\AliasCleaner;
+
+module_load_include('inc', 'buidl_helper', 'buidl_helper');
+module_load_include('inc', 'buidl_helper', 'buidl_helper.breadcrumb');
+
+
+function buidl_helper_pathauto_alias_alter(&$alias, array &$context){
+  if ($context['module'] == 'node' &&  $context['bundle'] == 'eb_guide' && ($context['op'] == 'update') || $context['op'] == 'bulkupdate') {
+    
+    if(isset($context['data']['node']) && $context['data']['node'] instanceof \Drupal\node\NodeInterface) {
+      $node = $context['data']['node'];
+      $breadcrumb = _buidl_helper_get_guide_parents_tree($node);
+      $url = '';
+      if($breadcrumb && is_array($breadcrumb)) {
+        $breadcrumb[] = $node->getTitle();
+      }
+      else {
+        $breadcrumb = [$node->getTitle()];
+      }
+      if($breadcrumb && is_array($breadcrumb)) {
+        //$urldata = \Drupal::service('pathauto.alias_cleaner');
+        //$new_url = $urldata->cleanAlias($url);
+        $cleaner = \Drupal::service('pathauto.alias_cleaner');
+        $new_alias = [];
+        foreach($breadcrumb as $_crumb) {
+          $new_alias[] = $cleaner->cleanString($_crumb);
+        }
+        $url = implode('/', $new_alias);
+        if(trim($url)) {
+          $alias = '/' . $url;
+        }
+      }
+    }
+  }  
+}
+
+function DISbuidl_helper_pathauto_pattern_alter(\Drupal\pathauto\PathautoPatternInterface $pattern, array $context) {
+  // Switch out any [node:created:*] tokens with [node:updated:*] on update.
+  if ($context['module'] == 'node' &&  $context['bundle'] == 'eb_guide' && ($context['op'] == 'update') || $context['op'] == 'bulkupdate') {
+    
+    if(isset($context['data']['node']) && $context['data']['node'] instanceof \Drupal\node\NodeInterface) {
+      $node = $context['data']['node'];
+      $breadcrumb = _buidl_helper_get_guide_parents_tree($node);
+      $url = '';
+      if($breadcrumb && is_array($breadcrumb)) {
+        $breadcrumb[] = $node->getTitle();
+        $url = implode('/', $breadcrumb);
+      }
+      else {
+        $url = $node->getTitle();
+      }
+      if(trim($url)) {
+        $pattern->setPattern($url);  
+      }
+
+    }
+    
+    //$pattern->setPattern(preg_replace('/\[node:created(\:[^]]*)?\]/', '[node:updated$1]', $pattern->getPattern()));
+  }
+}

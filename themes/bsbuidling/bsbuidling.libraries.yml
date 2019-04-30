@@ -1,0 +1,17 @@
+particle-network:
+  js: 
+    js/particle-network.min.js: {}
+bs:
+  css:
+    theme:
+      css/bs-flaty.min.css: {}
+global-styling:
+  css:
+    theme:
+      css/style.css: {}
+  js:
+    js/script.js: {} 
+  dependencies: 
+    - bsbuidling/bs
+    - bsbuidling/particle-network
+     

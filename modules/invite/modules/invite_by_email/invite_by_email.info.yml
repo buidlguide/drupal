@@ -1,0 +1,14 @@
+name: Invite by Email
+type: module
+description: Allow users to invite others to the site by sending the invitation by email.
+# core: 8.x
+package: Invite
+
+dependencies:
+  - invite:invite
+
+# Information added by Drupal.org packaging script on 2019-01-09
+version: '8.x-1.0-beta1+35-dev'
+core: '8.x'
+project: 'invite'
+datestamp: 1547058788

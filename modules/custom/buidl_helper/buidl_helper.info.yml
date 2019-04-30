@@ -1,0 +1,6 @@
+name: Helper Module for Buidl
+description: All custom funtion for Buidl site
+package: Buidl
+
+type: module
+core: 8.x

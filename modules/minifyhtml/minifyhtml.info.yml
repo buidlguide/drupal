@@ -1,0 +1,16 @@
+name: Minify Source HTML
+description: Minify the contents of the Drupal page
+package: Performance and scalability
+type: module
+# core: 8.x
+
+dependencies:
+  - drupal:system
+
+configure: system.performance_settings
+
+# Information added by Drupal.org packaging script on 2019-03-08
+version: '8.x-1.7'
+core: '8.x'
+project: 'minifyhtml'
+datestamp: 1552056192

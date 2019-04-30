@@ -1,0 +1,11 @@
+type: module
+name: Entity field token
+description: Render a field token on any entity display mode.
+# core: 8.x
+package: Fields
+
+# Information added by Drupal.org packaging script on 2018-03-17
+version: '8.x-1.0-alpha1'
+core: '8.x'
+project: 'entity_field_token'
+datestamp: 1521312485

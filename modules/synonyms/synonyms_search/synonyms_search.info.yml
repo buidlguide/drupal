@@ -1,0 +1,14 @@
+name: Synonyms Search
+description: Integrates Synonyms with core Search module.
+package: Synonyms
+type: module
+# core: 8.x
+dependencies:
+  - synonyms
+  - search
+
+# Information added by Drupal.org packaging script on 2018-10-21
+version: '8.x-1.0-alpha1+5-dev'
+core: '8.x'
+project: 'synonyms'
+datestamp: 1540141684

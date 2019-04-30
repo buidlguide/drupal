@@ -1,0 +1,31 @@
+core: 8.x
+type: theme
+base theme: bootstrap
+
+name: 'Buidling Theme'
+description: 'Bootstrap based theme for Buidling.net.'
+package: 'Bootstrap'
+
+regions:
+  navigation: 'Navigation'
+  navigation_collapsible: 'Navigation (Collapsible)'
+  header: 'Top Bar'
+  header_2: 'Header 2'
+  highlighted: 'Highlighted'
+  help: 'Help'
+  content: 'Content'
+  sidebar_first: 'Primary'
+  sidebar_second: 'Secondary'
+  footer: 'Footer'
+  bottom_navs: 'Bottom Navs'
+  footer_a: 'Footer A'
+  footer_b: 'Footer B'
+  footer_c: 'Footer C'
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+  home_welcome: 'Home Welcome'
+  home_buidlers: 'home Buidlers section'
+  home_projects: 'home projects section'
+
+libraries:
+  - 'bsbuidling/global-styling'

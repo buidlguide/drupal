@@ -1,0 +1,63 @@
+<?php
+
+function bsbuidling_preprocess_page(&$variables) {
+  $variables['eb_nodeid'] = 0;
+  $variables['eb_type'] = 0;
+  $variables['eb_url'] = \Drupal::service('path.current')->getPath();
+  if(isset($variables['node']) &&  $variables['node']){
+    $variables['eb_nodeid'] = $variables['node']->id();
+    $variables['eb_type'] = 'node';
+  }
+  $outout = array(
+    'eb_nodeid' => $variables['eb_nodeid'],
+    'eb_type' => $variables['eb_type'],
+    'eb_url' => $variables['eb_url'],
+  );
+}  
+
+
+
+
+function bsbuidling_css_alter(&$css, \Drupal\Core\Asset\AttachedAssetsInterface $assets) {
+  $files = array(
+    'core/modules/system/css/components/align.module.css',
+    'core/modules/system/css/components/fieldgroup.module.css',
+    'core/modules/system/css/components/container-inline.module.css',
+    'core/modules/system/css/components/clearfix.module.css',
+    'core/modules/system/css/components/details.module.css',
+    'core/modules/system/css/components/hidden.module.css',
+    'core/modules/system/css/components/item-list.module.css',
+    'core/modules/system/css/components/js.module.css',
+    'core/modules/system/css/components/nowrap.module.css',
+    'core/modules/system/css/components/position-container.module.css',
+    'core/modules/system/css/components/progress.module.css',
+    'core/modules/system/css/components/reset-appearance.module.css',
+    'core/modules/system/css/components/resize.module.css',
+    'core/modules/system/css/components/sticky-header.module.css',
+    'core/modules/system/css/components/system-status-counter.css',
+    'core/modules/system/css/components/system-status-report-counters.css',
+    'core/modules/system/css/components/system-status-report-general-info.css', 
+    'core/modules/system/css/components/tablesort.module.css',
+    'core/modules/system/css/components/tree-child.module.css',
+    //'core/modules/user/css/user.module.css',
+    'core/modules/views/css/views.module.css',
+    'core/assets/vendor/jquery.ui/themes/base/core.css',
+    'core/assets/vendor/jquery.ui/themes/base/menu.css',
+    'core/assets/vendor/jquery.ui/themes/base/autocomplete.css',
+    //'modules/extlink/extlink.css',
+    'core/assets/vendor/jquery.ui/themes/base/theme.css',
+    'modules/search_api_autocomplete/css/search_api_autocomplete.css',
+    //'themes/bootstrap/css/3.4.0/overrides-flatly.min.css',
+    //'themes/bsbuidling/css/libs.css',
+    //'https://cdn.jsdelivr.net/npm/bootswatch@3.4.0/flatly/bootstrap.css',
+  );
+  foreach($files as $file) {
+    unset($css[$file]);
+  }
+}
+
+function bsbuidling_js_alter(&$javascript, \Drupal\Core\Asset\AttachedAssetsInterface $assets) {
+  
+}
+
+
