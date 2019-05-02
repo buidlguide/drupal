@@ -58,6 +58,9 @@ nav#block-bsbuidling-account-menu {
   float: left;
   display: inline-block;
 }
+#navbar-collapse .views-exposed-form input.form-control {
+  width: 480px;
+}
 .buidlmenuarea {
   display: inline-block;
   float: right;
@@ -685,7 +688,7 @@ article.eb-collections .col-project-hashes {
   display:inline-block;
 }
 .main-container {
-  margin-top: 30px;
+  margin-top: 15px;
 }
 
 .col-search-result {
@@ -821,7 +824,7 @@ article.eb-project h3.about {
   background-color: #ffffff;
 }
 
-.view-eb-child-terms {
+.view-eb-child-terms .view-content{
   display: block;
   clear: both;
   float: left;
