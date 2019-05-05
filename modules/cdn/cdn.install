@@ -20,3 +20,10 @@ function cdn_update_8001() {
     $cdn_settings->save();
   }
 }
+
+/**
+ * Add the new "stream wrappers" setting, set it to its default initial value.
+ */
+function cdn_update_8002() {
+  \Drupal::configFactory()->getEditable('cdn.settings')->set('stream_wrappers', ['public'])->save();
+}

@@ -5,14 +5,11 @@ namespace Drupal\Tests\cdn\Unit\File;
 use Drupal\cdn\CdnSettings;
 use Drupal\cdn\File\FileUrlGenerator;
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\Config\Config;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\File\FileSystem;
 use Drupal\Core\PrivateKey;
 use Drupal\Core\Site\Settings;
+use Drupal\Core\StreamWrapper\LocalStream;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
@@ -28,7 +25,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class FileUrlGeneratorTest extends UnitTestCase {
 
-  static protected $privateKey = 'super secret key that really is just some string';
+  protected static $privateKey = 'super secret key that really is just some string';
 
   /**
    * {@inheritdoc}
@@ -71,10 +68,11 @@ class FileUrlGeneratorTest extends UnitTestCase {
             ],
           ],
         ],
-        'farfuture' => [
-          'status' => FALSE,
-        ],
       ],
+      'farfuture' => [
+        'status' => FALSE,
+      ],
+      'stream_wrappers' => ['public'],
     ]);
     $this->assertSame($expected_result, $gen->generate($uri));
   }
@@ -137,6 +135,12 @@ class FileUrlGeneratorTest extends UnitTestCase {
       'farfuture' => [
         'status' => TRUE,
       ],
+      // File is used here generically to test a stream wrapper that is not
+      // shipped with Drupal, but is natively supported by PHP.
+      // @see \Drupal\cdn\File\FileUrlGenerator::generate(), which uses
+      // file_exists() and would require actually configuring the stream
+      // wrapper in the context of the unit test.
+      'stream_wrappers' => ['public', 'file'],
     ];
 
     // Generate file for testing managed file.
@@ -150,16 +154,21 @@ class FileUrlGeneratorTest extends UnitTestCase {
     $gen = $this->createFileUrlGenerator('', $config);
     $this->assertSame('//cdn.example.com/core/misc/does-not-exist.js', $gen->generate('core/misc/does-not-exist.js'));
     $drupal_js_mtime = filemtime($this->root . '/core/misc/drupal.js');
-    $drupal_js_security_token = Crypt::hmacBase64($drupal_js_mtime . '/core/misc/drupal.js', static::$privateKey . Settings::getHashSalt());
-    $this->assertSame('//cdn.example.com/cdn/farfuture/' . $drupal_js_security_token . '/' . $drupal_js_mtime . '/core/misc/drupal.js', $gen->generate('core/misc/drupal.js'));
-    $llama_jpg_security_token = Crypt::hmacBase64($llama_jpg_mtime . '/sites/default/files/' . UrlHelper::encodePath($llama_jpg_filename), static::$privateKey . Settings::getHashSalt());
-    $this->assertSame('//cdn.example.com/cdn/farfuture/' . $llama_jpg_security_token . '/' . $llama_jpg_mtime . '/sites/default/files/' . UrlHelper::encodePath($llama_jpg_filename), $gen->generate('public://' . $llama_jpg_filename));
+    $drupal_js_security_token = Crypt::hmacBase64($drupal_js_mtime . ':relative:' . UrlHelper::encodePath('/core/misc/drupal.js'), static::$privateKey . Settings::getHashSalt());
+    $this->assertSame('//cdn.example.com/cdn/ff/' . $drupal_js_security_token . '/' . $drupal_js_mtime . '/:relative:/core/misc/drupal.js', $gen->generate('core/misc/drupal.js'));
+    // Since the public stream wrapper is not available in the unit test,
+    // and we use file_exists() in the target method, we are using the
+    // file:// scheme that ships with PHP. This does require
+    // injecting a leading into the path that we compare against, to match
+    // the method.
+    $llama_jpg_security_token = Crypt::hmacBase64($llama_jpg_mtime . 'file' . UrlHelper::encodePath('/' . $llama_jpg_filepath), static::$privateKey . Settings::getHashSalt());
+    $this->assertSame('//cdn.example.com/cdn/ff/' . $llama_jpg_security_token . '/' . $llama_jpg_mtime . '/file/' . $llama_jpg_filepath, $gen->generate('file://' . $llama_jpg_filepath));
 
     // In subdir: 1) non-existing file, 2) shipped file, 3) managed file.
     $gen = $this->createFileUrlGenerator('/subdir', $config);
     $this->assertSame('//cdn.example.com/subdir/core/misc/does-not-exist.js', $gen->generate('core/misc/does-not-exist.js'));
-    $this->assertSame('//cdn.example.com/subdir/cdn/farfuture/' . $drupal_js_security_token . '/' . $drupal_js_mtime . '/core/misc/drupal.js', $gen->generate('core/misc/drupal.js'));
-    $this->assertSame('//cdn.example.com/subdir/cdn/farfuture/' . $llama_jpg_security_token . '/' . $llama_jpg_mtime . '/sites/default/files/' . UrlHelper::encodePath($llama_jpg_filename), $gen->generate('public://' . $llama_jpg_filename));
+    $this->assertSame('//cdn.example.com/subdir/cdn/ff/' . $drupal_js_security_token . '/' . $drupal_js_mtime . '/:relative:/core/misc/drupal.js', $gen->generate('core/misc/drupal.js'));
+    $this->assertSame('//cdn.example.com/subdir/cdn/ff/' . $llama_jpg_security_token . '/' . $llama_jpg_mtime . '/file/' . $llama_jpg_filepath, $gen->generate('file://' . $llama_jpg_filepath));
 
     unlink($llama_jpg_filepath);
   }
@@ -195,14 +204,29 @@ class FileUrlGeneratorTest extends UnitTestCase {
       ->will(function () use ($base_path, &$current_uri) {
         return 'http://example.com' . $base_path . '/sites/default/files/' . UrlHelper::encodePath(substr($current_uri, 9));
       });
+    $file_stream_wrapper = $this->prophesize(LocalStream::class);
+    $root = $this->root;
+    $file_stream_wrapper->getExternalUrl()
+      ->will(function () use ($root, $base_path, &$current_uri) {
+        // The file:// stream wrapper is only used for testing FF.
+        return 'http://example.com/inaccessible';
+      });
     $stream_wrapper_manager = $this->prophesize(StreamWrapperManagerInterface::class);
-    $stream_wrapper_manager->getWrappers(StreamWrapperInterface::LOCAL)
-      ->willReturn(['public' => TRUE, 'private' => TRUE]);
+    $stream_wrapper_manager->getWrappers(StreamWrapperInterface::LOCAL_NORMAL)
+      ->willReturn(['public' => TRUE]);
     $stream_wrapper_manager->getViaUri(Argument::that(function ($uri) {
       return substr($uri, 0, 9) === 'public://';
     }))
       ->will(function ($args) use (&$public_stream_wrapper, &$current_uri) {
         $s = $public_stream_wrapper->reveal();
+        $current_uri = $args[0];
+        return $s;
+      });
+    $stream_wrapper_manager->getViaUri(Argument::that(function ($uri) {
+      return substr($uri, 0, 7) === 'file://';
+    }))
+      ->will(function ($args) use (&$file_stream_wrapper, &$current_uri) {
+        $s = $file_stream_wrapper->reveal();
         $current_uri = $args[0];
         return $s;
       });
@@ -220,59 +244,8 @@ class FileUrlGeneratorTest extends UnitTestCase {
       $stream_wrapper_manager->reveal(),
       $request_stack->reveal(),
       $private_key->reveal(),
-      new CdnSettings($this->getConfigFactoryStub(['cdn.settings' => $raw_config]))
+      new CdnSettings($this->getConfigFactoryStub(['cdn.settings' => $raw_config]), $stream_wrapper_manager->reveal())
     );
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * Overridden, because the way ImmutableConfig::get() is mocked, does not
-   * match the actual implementation, which then causes tests to fail.
-   */
-  public function getConfigFactoryStub(array $configs = []) {
-    $config_get_map = [];
-    $config_editable_map = [];
-    // Construct the desired configuration object stubs, each with its own
-    // desired return map.
-    foreach ($configs as $config_name => $map) {
-      $get = function ($key) use ($map) {
-        $parts = explode('.', $key);
-        if (count($parts) == 1) {
-          return isset($map[$key]) ? $map[$key] : NULL;
-        }
-        else {
-          $value = NestedArray::getValue($map, $parts, $key_exists);
-          return $key_exists ? $value : NULL;
-        }
-      };
-
-      $immutable_config_object = $this->getMockBuilder(ImmutableConfig::class)
-        ->disableOriginalConstructor()
-        ->getMock();
-      $immutable_config_object->expects($this->any())
-        ->method('get')
-        ->willReturnCallback($get);
-      $config_get_map[] = [$config_name, $immutable_config_object];
-
-      $mutable_config_object = $this->getMockBuilder(Config::class)
-        ->disableOriginalConstructor()
-        ->getMock();
-      $mutable_config_object->expects($this->any())
-        ->method('get')
-        ->willReturnCallback($get);
-      $config_editable_map[] = [$config_name, $mutable_config_object];
-    }
-    // Construct a config factory with the array of configuration object stubs
-    // as its return map.
-    $config_factory = $this->getMock(ConfigFactoryInterface::class);
-    $config_factory->expects($this->any())
-      ->method('get')
-      ->will($this->returnValueMap($config_get_map));
-    $config_factory->expects($this->any())
-      ->method('getEditable')
-      ->will($this->returnValueMap($config_editable_map));
-    return $config_factory;
   }
 
 }

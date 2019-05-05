@@ -20,3 +20,8 @@ cdn.settings:
         status:
           label: 'Forever cacheable files — status'
           type: boolean
+    stream_wrappers:
+      label: 'CDN-enabled stream wrappers'
+      type: sequence
+      sequence:
+        type: cdn.stream_wrapper_scheme

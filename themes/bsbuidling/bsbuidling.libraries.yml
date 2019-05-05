@@ -1,17 +1,22 @@
+alljs:
+  js:
+    js/all.js: {weight: -999}
+    # https://s3.buidl.guide/themes/bsbuidling/js/all.js: {weight: -999, type: external}
 particle-network:
   js: 
-    js/particle-network.min.js: {}
+    - js/particle-network.min.js: {}
+    - js/script.js: {} 
 bs:
   css:
     theme:
       css/bs-flaty.min.css: {}
+      # https://s3.buidl.guide/themes/bsbuidling/css/bs-flaty.min.css: (type: external, attributes: {type: "text/css"})
 global-styling:
   css:
     theme:
       css/style.css: {}
-  js:
-    js/script.js: {} 
   dependencies: 
+    - bsbuidling/alljs
     - bsbuidling/bs
-    - bsbuidling/particle-network
+    #- bsbuidling/particle-network
      

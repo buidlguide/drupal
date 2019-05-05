@@ -2,14 +2,45 @@
 
 namespace Drupal\cdn_ui\Form;
 
-use Drupal\cdn\CdnSettings;
-use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Config\Config;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configure CDN settings for this site.
  */
-class CdnSettingsForm extends ConfigFormBase {
+class CdnSettingsForm extends ValidatableConfigFormBase {
+
+  /**
+   * The stream wrapper manager.
+   *
+   * @var \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface
+   */
+  protected $streamWrapperManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typed_config_manager, StreamWrapperManagerInterface $streamWrapperManager) {
+    parent::__construct($config_factory, $typed_config_manager);
+    $this->streamWrapperManager = $streamWrapperManager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('config.typed'),
+      $container->get('stream_wrapper_manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -23,6 +54,13 @@ class CdnSettingsForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return ['cdn.settings'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static function getMainConfigName() {
+    return 'cdn.settings';
   }
 
   /**
@@ -60,9 +98,11 @@ class CdnSettingsForm extends ConfigFormBase {
       '#tree' => TRUE,
     ];
 
+    $mapping_type_ui_string = $this->t('Use @mapping-type mapping');
+    list($mapping_type_ui_string_prefix, $mapping_type_ui_string_suffix) = explode('@mapping-type', $mapping_type_ui_string, 2);
     $form['mapping']['type'] = [
-      '#field_prefix' => $this->t('Use'),
-      '#field_suffix' => $this->t('mapping'),
+      '#field_prefix' => $mapping_type_ui_string_prefix,
+      '#field_suffix' => $mapping_type_ui_string_suffix,
       '#type' => 'select',
       '#title' => $this->t('Mapping type'),
       '#title_display' => 'invisible',
@@ -74,7 +114,6 @@ class CdnSettingsForm extends ConfigFormBase {
       '#wrapper_attributes' => ['class' => ['container-inline']],
       '#attributes' => ['class' => ['container-inline']],
       '#default_value' => $config->get('mapping.type') === 'simple' ?: 'advanced',
-      '#attributes' => ['class' => ['container-inline']],
     ];
     $form['mapping']['simple'] = [
       '#type' => 'container',
@@ -85,11 +124,13 @@ class CdnSettingsForm extends ConfigFormBase {
       ],
       '#attributes' => ['class' => ['container-inline']],
     ];
+    $simple_mapping_ui_string = $this->t('Serve @files-with-some-extension from @domain');
+    list($simple_mapping_ui_string_part_one, $simple_mapping_ui_string_part_two) = preg_split('/\@[a-z\-]+/', $simple_mapping_ui_string, -1, PREG_SPLIT_NO_EMPTY);
     $form['mapping']['simple']['extensions_condition_toggle'] = [
       '#type' => 'select',
       '#title' => $this->t('Limit by file extension'),
       '#title_display' => 'invisible',
-      '#field_prefix' => $this->t('Serve'),
+      '#field_prefix' => $simple_mapping_ui_string_part_one,
       '#options' => [
         'all' => $this->t('all files'),
         'nocssjs' => $this->t('all files except CSS+JS'),
@@ -112,7 +153,7 @@ class CdnSettingsForm extends ConfigFormBase {
       ],
     ];
     $form['mapping']['simple']['domain'] = [
-      '#field_prefix' => $this->t('from'),
+      '#field_prefix' => $simple_mapping_ui_string_part_two,
       '#type' => 'textfield',
       '#placeholder' => 'example.com',
       '#title' => $this->t('Domain'),
@@ -143,31 +184,96 @@ class CdnSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('farfuture.status'),
     ];
 
+    $visible_stream_wrappers = $this->streamWrapperManager->getWrappers(StreamWrapperInterface::VISIBLE);
+    $non_core_visible_stream_wrappers = array_filter($visible_stream_wrappers, function (array $metadata) {
+      return strpos($metadata['class'], 'Drupal\Core') !== 0;
+    });
+    $form['wrappers'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Stream wrappers'),
+      '#group' => 'cdn_settings',
+      '#tree' => TRUE,
+      '#access' => !empty($non_core_visible_stream_wrappers),
+    ];
+    $checkboxes = $this->buildStreamWrapperCheckboxes(array_keys($visible_stream_wrappers));
+    $form['wrappers']['stream_wrappers'] = [
+      '#type' => 'checkboxes',
+      '#options' => array_combine(array_keys($checkboxes), array_keys($checkboxes)),
+      '#default_value' => $config->get('stream_wrappers'),
+      '#description' => $this->t('Stream wrappers whose files to serve from CDN. <code>public://</code> is always enabled, any other stream wrapper generating local file URLs is eligible.'),
+    ];
+    $form['wrappers']['stream_wrappers'] += $checkboxes;
+    // Special cases: public:// and private://.
+    $form['wrappers']['stream_wrappers']['public']['#disabled'] = TRUE;
+    if (!empty($form['wrappers']['stream_wrappers']['private'])) {
+      $form['wrappers']['stream_wrappers']['private']['#disabled'] = TRUE;
+      $form['wrappers']['stream_wrappers']['private']['#title'] = '<del>' . $form['wrappers']['stream_wrappers']['private']['#title'] . '</del>';
+      $form['wrappers']['stream_wrappers']['private']['#description'] = $this->t('Private files require authentication and hence cannot be served from a CDN.');
+    }
+
     return parent::buildForm($form, $form_state);
   }
 
   /**
-   * {@inheritdoc}
+   * Determines whether the stream wrapper generates external URLs.
+   *
+   * @param string $stream_wrapper_scheme
+   *   A valid stream wrapper scheme.
+   * @param \Drupal\Core\StreamWrapper\StreamWrapperInterface $stream_wrapper
+   *   A stream wrapper instance.
+   *
+   * @return bool
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    $mapping = $form_state->getValue('mapping');
-    if ($mapping['type'] === 'simple') {
-      if (!CdnSettings::isValidCdnDomain($mapping['simple']['domain'])) {
-        $form_state->setErrorByName('mapping][simple][domain', $this->t('The provided domain %domain is not valid. Provide a hostname like <samp>cdn.com</samp> or <samp>cdn.example.com</samp>. IP addresses and ports are also allowed.', [
-          '%domain' => $mapping['simple']['domain'],
-        ]));
-      }
+  protected function streamWrapperGeneratesExternalUrls($stream_wrapper_scheme, StreamWrapperInterface $stream_wrapper) {
+    // Generate URL to imaginary file 'cdn.test'. Most stream wrappers don't
+    // check file existence, just concatenate strings.
+    $stream_wrapper->setUri($stream_wrapper_scheme . '://cdn.test');
+    try {
+      $absolute_url = $stream_wrapper->getExternalUrl();
+      $base_url = $this->getRequest()->getSchemeAndHttpHost() . $this->getRequest()->getBasePath();
+      $relative_url = str_replace($base_url, '', $absolute_url);
+      return UrlHelper::isExternal($relative_url);
     }
+    catch (\Exception $e) {
+      // In case of failure, assume this would have resulted in an external URL.
+      return TRUE;
+    }
+  }
+
+  /**
+   * Builds the stream wrapper checkboxes form array.
+   *
+   * @param string[] $stream_wrapper_schemes
+   *   The stream wrapper schemes for which to generate form checkboxes.
+   *
+   * @return array
+   */
+  protected function buildStreamWrapperCheckboxes(array $stream_wrapper_schemes) {
+    $checkboxes = [];
+    foreach ($stream_wrapper_schemes as $stream_wrapper_scheme) {
+      $wrapper = $this->streamWrapperManager->getViaScheme($stream_wrapper_scheme);
+      $generates_external_urls = static::streamWrapperGeneratesExternalUrls($stream_wrapper_scheme, $wrapper);
+      $checkboxes[$stream_wrapper_scheme] = [
+        '#title' => $this->t('@name → <code>@scheme://</code>', ['@scheme' => $stream_wrapper_scheme, '@name' => $wrapper->getName()]),
+        '#disabled' => $generates_external_urls,
+        '#description' => !$generates_external_urls ? NULL : $this->t('This stream wrapper generates external URLs, and hence cannot be served from a CDN.'),
+      ];
+    }
+    return $checkboxes;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $config = $this->config('cdn.settings');
-
+  protected static function mapFormValuesToConfig(FormStateInterface $form_state, Config $config) {
     // Vertical tab: 'Status'.
     $config->set('status', (bool) $form_state->getValue('status'));
+
+    // Vertical tab: 'Stream wrappers'.
+    $stream_wrappers = array_values(array_filter($form_state->getValue(['wrappers', 'stream_wrappers'])));
+    // Ensure 'public://' is always enabled, and ensure it's always first.
+    $stream_wrappers = array_merge(['public'], $stream_wrappers);
+    $config->set('stream_wrappers', $stream_wrappers);
 
     // Vertical tab: 'Mapping'.
     if ($form_state->getValue(['mapping', 'type']) === 'simple') {
@@ -201,9 +307,20 @@ class CdnSettingsForm extends ConfigFormBase {
     // Vertical tab: 'Forever cacheable files'.
     $config->set('farfuture.status', (bool) $form_state->getValue(['farfuture', 'status']));
 
-    $config->save();
+    return $config;
+  }
 
-    parent::submitForm($form, $form_state);
+  /**
+   * {@inheritdoc}
+   */
+  protected static function mapViolationPropertyPathsToFormNames($property_path) {
+    switch ($property_path) {
+      case 'mapping.domain':
+        return 'mapping][simple][domain';
+
+      default:
+        return parent::mapViolationPropertyPathsToFormNames($property_path);
+    }
   }
 
 }

@@ -4,11 +4,11 @@ type: module
 # core: 8.x
 package: "Web services"
 dependencies:
-  # https://www.drupal.org/node/2573635 landed in Drupal 8.1.4.
-  - drupal:system (>= 8.1.4)
+  # https://www.drupal.org/project/drupal/issues/2862248 landed in Drupal 8.5
+  - drupal:system (>= 8.5)
 
-# Information added by Drupal.org packaging script on 2017-12-02
-version: '8.x-3.2'
+# Information added by Drupal.org packaging script on 2019-05-02
+version: '8.x-3.3'
 core: '8.x'
 project: 'cdn'
-datestamp: 1512212591
+datestamp: 1556830088

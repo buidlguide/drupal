@@ -50,6 +50,7 @@ function bsbuidling_css_alter(&$css, \Drupal\Core\Asset\AttachedAssetsInterface 
     //'themes/bootstrap/css/3.4.0/overrides-flatly.min.css',
     //'themes/bsbuidling/css/libs.css',
     //'https://cdn.jsdelivr.net/npm/bootswatch@3.4.0/flatly/bootstrap.css',
+    'modules/contrib/social_auth/css/auth-icons.css',
   );
   foreach($files as $file) {
     unset($css[$file]);
@@ -57,7 +58,48 @@ function bsbuidling_css_alter(&$css, \Drupal\Core\Asset\AttachedAssetsInterface 
 }
 
 function bsbuidling_js_alter(&$javascript, \Drupal\Core\Asset\AttachedAssetsInterface $assets) {
-  
+  $files_d = array(
+    'core/misc/autocomplete.js',
+    'themes/bootstrap/js/misc/progress.js',
+    'core/assets/vendor/jquery.ui/ui/data-min.js',
+    'core/assets/vendor/jquery.ui/ui/disable-selection-min.js',
+    'core/assets/vendor/jquery.ui/ui/form-min.js',
+    'core/assets/vendor/jquery.ui/ui/labels-min.js',
+    'core/assets/vendor/jquery.ui/ui/jquery-1-7-min.js',
+    'core/assets/vendor/jquery.ui/ui/scroll-parent-min.js',
+    'core/assets/vendor/jquery.ui/ui/tabbable-min.js',
+    'core/assets/vendor/jquery.ui/ui/unique-id-min.js',
+    'core/assets/vendor/jquery.ui/ui/version-min.js',
+    'core/assets/vendor/jquery.ui/ui/focusable-min.js',
+    'core/assets/vendor/jquery.ui/ui/ie-min.js',
+    'core/assets/vendor/jquery.ui/ui/keycode-min.js',
+    'core/assets/vendor/jquery.ui/ui/plugin-min.js',
+    'core/assets/vendor/jquery.ui/ui/safe-active-element-min.js',
+    'core/assets/vendor/jquery.ui/ui/safe-blur-min.js',
+    'core/assets/vendor/jquery.ui/ui/widget-min.js',    
+    'core/misc/progress.js',
+    'core/modules/responsive_image/js/responsive_image.ajax.js',
+
+  );
+  $files = array(
+    'core/assets/vendor/jquery/jquery.min.js',
+    'core/assets/vendor/domready/ready.min.js',
+    'core/assets/vendor/underscore/underscore-min.js',
+    'core/assets/vendor/jquery/jquery-extend-3.4.0.js',
+    'core/misc/drupalSettingsLoader.js',
+    'core/misc/drupal.js',
+    'core/misc/drupal.init.js',
+    'modules/google_analytics/js/google_analytics.js',
+    'themes/bootstrap/js/drupal.bootstrap.js',
+    'themes/bootstrap/js/attributes.js',
+    'themes/bootstrap/js/theme.js',
+    
+
+  );
+  foreach($files as $file) {
+    unset($javascript[$file]);
+  }  
 }
+
 
 

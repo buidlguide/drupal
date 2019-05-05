@@ -112,7 +112,9 @@
     </div>
 
     <div class = "col-sm-3 col-project-logo">
+      {% if drupal_view_result('eb_guides_per_project', 'projects_card') %}
       {{ drupal_view('eb_guides_per_project', 'projects_card') }}
+      {% endif %}
 
       <div class = "col-project-hashes">
       {% if content.field_eb_tags %}

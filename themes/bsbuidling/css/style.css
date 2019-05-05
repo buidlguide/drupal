@@ -522,6 +522,9 @@ form.node-eb-guide-form {
   letter-spacing: 0.9px;
   font-family: Dosis,sans-serif;  
 }  
+a:hover, a:focus {
+  color: #1974de;
+}
 
 .row-project-links {
   padding: 0px !important;
@@ -568,7 +571,14 @@ form.node-eb-guide-form {
   background: #fff;
   padding: 15px;
   border: 1px solid #F9F9F9;
+}
+.row-project-guideslist .view .view-content .row-item .search-result-subtitle {
+  color: #292b2c; 
 
+}
+.row-project-guideslist .view .view-content .row-item a:focus .search-result-subtitle,
+.row-project-guideslist .view .view-content .row-item a:hover .search-result-subtitle {
+  text-decoration: none;
 }
 .row-node-section {
   background: #F9F9F9;
@@ -579,7 +589,7 @@ form.node-eb-guide-form {
   border-radius: 5px;
 }
 .row-project-guideslist .view .view-content .row-item a:hover {
-
+  text-decoration: none;
 }
 .row-project-guideslist .view .view-content .row-item a:hover h4{
   
@@ -750,7 +760,7 @@ article.eb-collections .col-project-hashes {
   padding: 4px;
   border-right: 0px;
 }
-
+.form-type-search-api-autocomplete input.form-control,
 .form-type-search-api-autocomplete input.form-autocomplete {
   border-right: 0px; 
   height: 35px;
@@ -842,6 +852,7 @@ article.eb-project h3.about {
 }
 .view-eb-child-terms .col-project-hashes ul {
   margin-bottom: 0px;
+  text-align:left;
 }
 .views-element-container.form-group {
   margin-bottom: 0px;
@@ -878,10 +889,15 @@ article.eb-project h3.about {
 
 
 section.bottom_navs {
-background: #ecf0f1;
-padding-top: 60px;
-padding-bottom: 15px;
-margin-top: 30px;
+  background: #ecf0f1;
+  padding-top: 60px;
+  padding-bottom: 15px;
+  margin-top: 30px;
+  float: left;
+  clear: both;
+  /* display: none; */
+  width: 100%;
+  overflow: hidden;
 }
 
 .btn-info {
@@ -892,15 +908,15 @@ margin-top: 30px;
 .btn-square {
   border-radius: 0px;
 }
-
 .buidlmenuarea .btn-menu {
-  height: 29px;
-  margin-top: 8px;
-  font-weight: 600;
-  font-size: 15px;
-  padding-top: 3px;
-  border: 0px;
+height: 29px;
+margin-top: 8px;
+font-weight: 600;
+font-size: 15px;
+padding-top: 4px;
+border: 0px;
 }
+
 .donation-wrap {
   font-size: 18px;
     background: #50a1ff;
@@ -971,8 +987,95 @@ ul.social-links li a{
   padding: 15px;
   margin-bottom: 15px;
 }
+.field--name-field-eb-synonyms .field--item{ 
+  display: inline;
+}
+.field--name-field-eb-synonyms .field--item::after {
+  content: ",";
+}
+.field--name-field-eb-synonyms .field--item:last-child::after {
+  content: ".";
+}
+.zsiq_theme8 .zsiq_flt_rel {
+  max-width: 300px !important;
+}
+
+#block-donationblock { 
+  float: left;
+  width: 100%;
+  display: block; 
+  margin-top: 15px;
+}
+
+/**
+ * Styles for the login form
+ */
+ .social-auth.auth-link {
+  border-bottom: none;
+}
+.social-auth.auth-icon {
+  width: 3em;
+  margin-right: 5px;
+  -webkit-transition: all ease 0.3s;
+  -moz-transition: all ease 0.3s;
+  -o-transition: all ease 0.3s;
+  -ms-transition: all ease 0.3s;
+  transition: all ease 0.3s;
+}
+
+.social-auth.auth-icon:hover {
+  animation-name: grey;
+  animation-duration: 0.5s;
+  filter: grayscale(1);
+}
+
+@keyframes grey {
+  from {
+    webkit-filter: grayscale(0);
+    filter: grayscale(0);
+  }
+  to {
+    webkit-filter: grayscale(1);
+    filter: grayscale(1);
+  }
+}
 
 @media (max-width: 768px) { 
+  .navbar-default {
+    height: 85px;
+    min-height: 35px;
+    padding-top: 3px;
+  }
+  body.navbar-is-fixed-top {
+    margin-top: 85px;
+  }
+  h1.page-header,
+  ol.breadcrumb {
+    display: block;
+    width: 100%;
+    float: left;
+    text-align: left;
+  }
+  ol.breadcrumb li.active {
+    display:none;
+  }
+  .breadcrumb > li + li:before {
+    padding-right: 0px;
+  }
+  ol.breadcrumb {
+    font-size: 0.85em;
+  }
+  .container {
+    padding-right: 7px;
+    padding-left: 7px;
+  }
+  .main-container {
+    margin-top: 0px;
+  }
+  header.navbar .navbar-default {
+    height: 90px;
+    min-height: 90px;
+  }
   .pintrest-style-wrap { 
     column-count: 1;
   }
@@ -986,10 +1089,38 @@ ul.social-links li a{
   #block-homepagecanvas {
     margin-top: 45px;
   }
+  header#navbar .navbar-header{
+    display: inline-block;
+    float: left;    
+  }
+  .navbar-brand {
+    padding: 4px 15px;
+    height: 35px;
+  }
+  .buidlmenuarea {
+    float: left;
+    display: inline-block;
+    margin-right: 0px;
+    text-align: left;
+    margin-left: 0px;
+    height: 35px;
+    position: absolute;
+    right: 15px;
+
+  }
   #navbar-collapse {
-    padding-bottom: 30px;
+    padding-bottom: 0px;
     z-index: 123;
     background: #ecf0f1;
+    display: contents !important;
+    position: relative;
+    width: auto;
+    margin-left: -15px;
+    float: left;
+    width: 100%;
+    margin-right: 0;
+    padding-right: 5px;
+    text-align: left;    
   }
   .hpw-col-buidlers {
     text-align: center;
@@ -1023,6 +1154,7 @@ ul.social-links li a{
     margin-bottom: 60px;
   }
   .col-project-hashes ul li {
+    float: left;
     display: inline-block;
   }
   .col-project-hashes {
@@ -1060,16 +1192,57 @@ ul.social-links li a{
     font-size: 16px;
   }
   #navbar-collapse .views-exposed-form .form-type-search-api-autocomplete {
-    float: left;
-    display: inline-block;
-    width: 83%;
+    margin-bottom: 5px;
+    margin-right: 45px;
   }
   #navbar-collapse .views-exposed-form div.form-actions {
     display: inline-block;
     float: left;
   }
   #navbar-collapse .views-exposed-form #edit-actions {
-    float:right;
+    float: none;
+    position: absolute;
+    top: 0;
+    right: 8px;
+  }
+  #navbar-collapse .views-exposed-form {
+    margin-top: 0px;
+    width: 100%;
+
+  }
+  #navbar-collapse .views-exposed-form form .form-inline {
+    position: relative;
+    margin-top: 5px;
+  }
+  #navbar-collapse .views-exposed-form input.form-control {
+    width: 100%;
+  }
+  #navbar-collapse .region-navigation-collapsible {
+    display: block;
+    width: 100%;
+  }
+  article.eb-guide h3.about, article.eb-project h3.about {
+    display: none;
+  }
+  .donation-wrap {
+    font-size: 14px;
+  }
+  #page_footer ul,
+  .bottom_navs ul, 
+  #page_footer ul li, 
+  .bottom_navs ul li {
+    display: block;
+    width: 100%;
+    float: left;
+    clear: both;
+  }
+  p a {
+    word-break: break-all;
+  }
+  .buidlmenuarea .btn-menu {
+    height: 28px;
+    margin-top: 5px;
+    padding-top: 3px;
   }
 }
 @media (max-width: 360px) { 
@@ -1077,4 +1250,8 @@ ul.social-links li a{
     letter-spacing: 1.2px;
     font-size: 11px;    
   }
+  .container {
+    padding-right: 7px;
+    padding-left: 7px;
+  }  
 }

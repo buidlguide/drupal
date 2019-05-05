@@ -64,3 +64,11 @@ tips:
     weight: 7
     attributes:
       data-id: edit-farfuture
+  cdn-ui-streamwrappers:
+    id: cdn-ui-streamwrappers
+    plugin: text
+    label: 'Stream wrappers'
+    body: 'Files included with Drupal modules and themes can always be served from a CDN as can files stored in the default Drupal stream wrapper, <code>public://</code>. This site has additional stream wrappers installed, those can optionally be enabled too.'
+    weight: 8
+    attributes:
+      data-id: edit-wrappers

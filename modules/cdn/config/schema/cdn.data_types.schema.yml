@@ -5,3 +5,10 @@
 cdn.domain:
   type: string
   label: 'Domain'
+  constraints:
+    CdnDomain: []
+cdn.stream_wrapper_scheme:
+  type: string
+  label: 'Stream wrapper scheme'
+  constraints:
+    CdnStreamWrapper: []

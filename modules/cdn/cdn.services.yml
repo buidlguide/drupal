@@ -10,7 +10,7 @@ services:
   # Event subscribers.
   cdn.config_subscriber:
     class: Drupal\cdn\EventSubscriber\ConfigSubscriber
-    arguments: ['@cache_tags.invalidator', '@kernel', '@config.factory']
+    arguments: ['@cache_tags.invalidator', '@config.typed', '@kernel']
     tags:
       - { name: event_subscriber }
   cdn.html_response_subscriber:
@@ -18,6 +18,11 @@ services:
     arguments: ['@cdn.settings']
     tags:
       - { name: event_subscriber }
+
+  # Controllers.
+  cdn.controller.farfuture:
+    class: \Drupal\cdn\CdnFarfutureController
+    arguments: ['@private_key', '@file_system']
 
   # Inbound path processor for the cdn.farfuture.download route, since the
   # Drupal 8/Symfony routing system does not support "menu tail" or "slash in

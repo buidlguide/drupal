@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\cdn\Functional\Update;
 
-use Drupal\system\Tests\Update\UpdatePathTestBase;
+use Drupal\FunctionalTests\Update\UpdatePathTestBase;
 
 /**
  * Tests that existing sites are updated to the new defaults unless customized.
@@ -11,6 +11,7 @@ use Drupal\system\Tests\Update\UpdatePathTestBase;
  * @see https://www.drupal.org/node/2827998
  *
  * @group cdn
+ * @group legacy
  */
 class CdnDefaultSettingsUpdateTest extends UpdatePathTestBase {
 
@@ -48,13 +49,13 @@ class CdnDefaultSettingsUpdateTest extends UpdatePathTestBase {
 
     // Make sure we have the expected values before the update.
     $cdn_settings = $this->config('cdn.settings');
-    $this->assertIdentical($expected_original_mapping, $cdn_settings->get('mapping'));
+    $this->assertSame($expected_original_mapping, $cdn_settings->get('mapping'));
 
     $this->runUpdates();
 
     // Make sure we have the expected values after the update.
     $cdn_settings = $this->config('cdn.settings');
-    $this->assertIdentical($expected_updated_mapping, $cdn_settings->get('mapping'));
+    $this->assertSame($expected_updated_mapping, $cdn_settings->get('mapping'));
   }
 
   /**
@@ -77,13 +78,13 @@ class CdnDefaultSettingsUpdateTest extends UpdatePathTestBase {
 
     // Make sure we have the expected values before the update.
     $cdn_settings = $this->config('cdn.settings');
-    $this->assertIdentical($expected_mapping, $cdn_settings->get('mapping'));
+    $this->assertSame($expected_mapping, $cdn_settings->get('mapping'));
 
     $this->runUpdates();
 
     // Make sure we have the expected values after the update.
     $cdn_settings = $this->config('cdn.settings');
-    $this->assertIdentical($expected_mapping, $cdn_settings->get('mapping'));
+    $this->assertSame($expected_mapping, $cdn_settings->get('mapping'));
   }
 
 }

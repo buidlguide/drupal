@@ -26,13 +26,13 @@ class DuplicateContentPreventionMiddlewareTest extends UnitTestCase {
    * @covers ::getRedirectUrl
    * @dataProvider duplicateContentPreventionProvider
    */
-  public function testDuplicateContentPrevention($path, $user_agent, $expected_redirect) {
+  public function testDuplicateContentPrevention($path, $user_agent, array $other_request_headers, $expected_redirect) {
     // The incoming request for the given path from the given user agent.
     $request_prophecy = $this->prophesize(Request::class);
     $request_prophecy->getPathInfo()
       ->willReturn($path);
     $request = $request_prophecy->reveal();
-    $request->headers = new HeaderBag(['User-Agent' => $user_agent]);
+    $request->headers = new HeaderBag(['User-Agent' => $user_agent] + $other_request_headers);
 
     // Simulate the logic of the unrouted URL assembler.
     $container = new ContainerBuilder();
@@ -66,22 +66,27 @@ class DuplicateContentPreventionMiddlewareTest extends UnitTestCase {
     // @codingStandardsIgnoreStart
     return [
       // HTML requested: the response is a redirect when requested by a CDN.
-      ['/',            'Mozilla', FALSE],
-      ['/node/1',      'Mozilla', FALSE],
-      ['/node/1.html', 'Mozilla', FALSE],
-      ['/node/1.htm',  'Mozilla', FALSE],
-      ['/node/1.php',  'Mozilla', FALSE],
-      ['/',            'Amazon CloudFront', 'http://🐷.com/'],
-      ['/node/1',      'Amazon CloudFront', 'http://🐷.com/node/1'],
-      ['/node/1.html', 'Amazon CloudFront', 'http://🐷.com/node/1.html'],
-      ['/node/1.htm',  'Amazon CloudFront', 'http://🐷.com/node/1.htm'],
-      ['/node/1.php',  'Amazon CloudFront', 'http://🐷.com/node/1.php'],
+      ['/',            'Mozilla', [], FALSE],
+      ['/node/1',      'Mozilla', [], FALSE],
+      ['/node/1.html', 'Mozilla', [], FALSE],
+      ['/node/1.htm',  'Mozilla', [], FALSE],
+      ['/node/1.php',  'Mozilla', [], FALSE],
+      ['/',            'Amazon CloudFront', [], 'http://🐷.com/'],
+      ['/node/1',      'Amazon CloudFront', [], 'http://🐷.com/node/1'],
+      ['/node/1.html', 'Amazon CloudFront', [], 'http://🐷.com/node/1.html'],
+      ['/node/1.htm',  'Amazon CloudFront', [], 'http://🐷.com/node/1.htm'],
+      ['/node/1.php',  'Amazon CloudFront', [], 'http://🐷.com/node/1.php'],
+      ['/',            'Mozilla', ['CF-RAY' => $this->randomMachineName()], 'http://🐷.com/'],
+      ['/node/1',      'Mozilla', ['CF-RAY' => $this->randomMachineName()], 'http://🐷.com/node/1'],
+      ['/node/1.html', 'Mozilla', ['CF-RAY' => $this->randomMachineName()], 'http://🐷.com/node/1.html'],
+      ['/node/1.htm',  'Mozilla', ['CF-RAY' => $this->randomMachineName()], 'http://🐷.com/node/1.htm'],
+      ['/node/1.php',  'Mozilla', ['CF-RAY' => $this->randomMachineName()], 'http://🐷.com/node/1.php'],
       // File requested: the response is never a redirect.
-      ['/misc/jquery.js', 'Mozilla', FALSE],
-      ['/misc/jquery.js', 'Amazon CloudFront', FALSE],
+      ['/misc/jquery.js', 'Mozilla', [], FALSE],
+      ['/misc/jquery.js', 'Amazon CloudFront', [], FALSE],
       // Generated file requested: the response is never a redirect.
-      ['/sites/default/files/styles/thumbnail/foobar.png', 'Mozilla', FALSE],
-      ['/sites/default/files/styles/thumbnail/foobar.png', 'Amazon CloudFront', FALSE],
+      ['/sites/default/files/styles/thumbnail/foobar.png', 'Mozilla', [], FALSE],
+      ['/sites/default/files/styles/thumbnail/foobar.png', 'Amazon CloudFront', [], FALSE],
     ];
     // @codingStandardsIgnoreEnd
   }

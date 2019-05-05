@@ -3,7 +3,6 @@
 namespace Drupal\cdn\StackMiddleware;
 
 use Drupal\Component\Assertion\Inspector;
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -90,6 +89,16 @@ class DuplicateContentPreventionMiddleware implements HttpKernelInterface {
   protected $cdnUserAgents = ['amazon cloudfront', 'akamai'];
 
   /**
+   * The request headers only set by CDN user agents.
+   *
+   * Hardcoded to avoid costly I/O.
+   *
+   * @var string[]
+   * @note To add more CDN-only request headers, file a feature request at https://www.drupal.org/node/add/project-issue/cdn
+   */
+  protected $cdnOnlyRequestHeaders = ['CF-RAY'];
+
+  /**
    * Constructs a DuplicateContentPreventionMiddleware object.
    *
    * @param \Symfony\Component\HttpKernel\HttpKernelInterface $http_kernel
@@ -137,32 +146,51 @@ class DuplicateContentPreventionMiddleware implements HttpKernelInterface {
     // because a Drupal 8 site can choose to use a different directory for
     // generated files. We use a blacklist rather than a whitelist of extensions
     // to ensure that any current and future files can be served.
-    $extension = Unicode::strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    $extension = mb_strtolower(pathinfo($path, PATHINFO_EXTENSION));
     if (!in_array($extension, $this->forbiddenExtensions)) {
       return FALSE;
+    }
+
+    assert(Inspector::assertAllStrings($this->cdnOnlyRequestHeaders), 'CDN-only request headers must be strings.');
+    foreach ($this->cdnOnlyRequestHeaders as $cdn_only_request_header) {
+      if ($request->headers->has($cdn_only_request_header)) {
+        return $this->generateRedirectUrl($request);
+      }
     }
 
     // Use case-insensitive substring matching to match the current User-Agent
     // to the list of CDN user agents.
     if ($request->headers->has('User-Agent')) {
-      $ua = Unicode::strtolower($request->headers->get('User-Agent'));
-
-      // Put the current request on the stack. We have to do this manually
-      // because this runs so early that the request stack is still empty.
-      // @see \Drupal\Core\StackMiddleware\KernelPreHandle::handle()
-      // @see \Drupal\Core\DrupalKernel::preHandle()
-      $this->requestStack->push($request);
-
+      $ua = mb_strtolower($request->headers->get('User-Agent'));
       assert(Inspector::assertAllStrings($this->cdnUserAgents), 'CDN user agents must be strings.');
-      assert(Inspector::assertAll(function($s) { return Unicode::strtolower($s) === $s; }, $this->cdnUserAgents), 'CDN user agents must be lower case strings.'); // @codingStandardsIgnoreLine
+      assert(Inspector::assertAll(function($s) { return mb_strtolower($s) === $s; }, $this->cdnUserAgents), 'CDN user agents must be lower case strings.'); // @codingStandardsIgnoreLine
       foreach ($this->cdnUserAgents as $cdn_ua) {
         if (strstr($ua, $cdn_ua)) {
-          return Url::fromUri('base:' . $path)->setAbsolute(TRUE)->toString(FALSE);
+          return $this->generateRedirectUrl($request);
         }
       }
     }
 
     return FALSE;
+  }
+
+  /**
+   * Generates a redirect URL for the given request.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   A request.
+   *
+   * @return \Drupal\Core\GeneratedUrl
+   *   The URL for the request.
+   */
+  protected function generateRedirectUrl(Request $request) {
+    // Put the current request on the stack. We have to do this manually
+    // because this runs so early that the request stack is still empty.
+    // @see \Drupal\Core\StackMiddleware\KernelPreHandle::handle()
+    // @see \Drupal\Core\DrupalKernel::preHandle()
+    $this->requestStack->push($request);
+
+    return Url::fromUri('base:' . $request->getPathInfo())->setAbsolute(TRUE)->toString(FALSE);
   }
 
 }

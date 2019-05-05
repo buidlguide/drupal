@@ -2,6 +2,7 @@
 
 namespace Drupal\cdn;
 
+use Drupal\Component\Assertion\Inspector;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ConfigValueException;
 
@@ -78,6 +79,19 @@ class CdnSettings {
   }
 
   /**
+   * Returns CDN-eligible stream wrappers.
+   *
+   * @return string[]
+   *   The allowed stream wrapper scheme names.
+   */
+  public function getStreamWrappers() {
+    $stream_wrappers = $this->rawSettings->get('stream_wrappers');
+    // @see cdn_update_8002()
+    assert(Inspector::assertAllStrings($stream_wrappers), 'Please run update.php!');
+    return $stream_wrappers;
+  }
+
+  /**
    * Builds a lookup table: file extension to CDN domain(s).
    *
    * @param array $mapping
@@ -94,10 +108,10 @@ class CdnSettings {
    *       more conditions besides extensions are added. For now, KISS.
    */
   protected function buildLookupTable(array $mapping) {
+    assert(!\Drupal::hasContainer() || \Drupal::service('config.typed')->get('cdn.settings')->validate()->count() === 0, 'There are validation errors for the "cdn.settings" configuration.');
     $lookup_table = [];
     if ($mapping['type'] === 'simple') {
       $domain = $mapping['domain'];
-      assert(CdnSettings::isValidCdnDomain($domain), "The provided domain $domain is not valid. Provide a host like 'cdn.com' or 'cdn.example.com'. IP addresses and ports are also allowed.");
       if (empty($mapping['conditions'])) {
         $lookup_table['*'] = $domain;
       }
@@ -125,7 +139,6 @@ class CdnSettings {
       $fallback_domain = NULL;
       if (isset($mapping['fallback_domain'])) {
         $fallback_domain = $mapping['fallback_domain'];
-        assert(CdnSettings::isValidCdnDomain($fallback_domain), "The provided fallback domain $fallback_domain is not valid. Provide a host like 'cdn.com' or 'cdn.example.com'. IP addresses and ports are also allowed.");
         $lookup_table['*'] = $fallback_domain;
       }
       for ($i = 0; $i < count($mapping['domains']); $i++) {
@@ -140,9 +153,6 @@ class CdnSettings {
         throw new ConfigValueException('It does not make sense to apply auto-balancing to all files, regardless of extension.');
       }
       $domains = $mapping['domains'];
-      foreach ($domains as $domain) {
-        assert(CdnSettings::isValidCdnDomain($domain), "The provided domain $domain is not valid. Provide a host like 'cdn.com' or 'cdn.example.com'. IP addresses and ports are also allowed.");
-      }
       foreach ($mapping['conditions']['extensions'] as $extension) {
         $lookup_table[$extension] = $domains;
       }
@@ -154,25 +164,46 @@ class CdnSettings {
   }
 
   /**
-   * Validates the given CDN domain.
+   * Maps a URI to a CDN domain.
    *
-   * @param string $domain
-   *   A domain as expected by the CDN module. In fact, an "authority" as
-   *   defined in RFC3986. An authority consists of host, optional userinfo and
-   *   optional port. The host can be an IP address or registered domain name.
+   * @param string $uri
+   *   The URI to map.
    *
-   * @return bool
-   *
-   * @see https://tools.ietf.org/html/rfc3986#section-3.2
-   * @see ../config/schema/cdn.data_types.schema.yml
+   * @return string|bool
+   *   The mapped domain, or FALSE if it could not be matched.
    */
-  public static function isValidCdnDomain($domain) {
-    // Add a scheme so that we have a parseable URL.
-    $url = 'https://' . $domain;
-    $components = parse_url($url);
+  public function getCdnDomain($uri) {
+    // Extension-specific mapping.
+    $file_extension = mb_strtolower(pathinfo($uri, PATHINFO_EXTENSION));
+    $lookup_table = $this->getLookupTable();
+    if (isset($lookup_table[$file_extension])) {
+      $key = $file_extension;
+    }
+    // Generic or fallback mapping.
+    elseif (isset($lookup_table['*'])) {
+      $key = '*';
+    }
+    // No mapping.
+    else {
+      return FALSE;
+    }
 
-    $forbidden_components = ['path', 'query', 'fragment'];
-    return $components === FALSE ? FALSE : empty(array_intersect($forbidden_components, array_keys($components)));
+    $result = $lookup_table[$key];
+
+    if ($result === FALSE) {
+      return FALSE;
+    }
+    // If there are multiple results, pick one using consistent hashing: ensure
+    // the same file is always served from the same CDN domain.
+    elseif (is_array($result)) {
+      $filename = basename($uri);
+      $hash = hexdec(substr(md5($filename), 0, 5));
+      $cdn_domain = $result[$hash % count($result)];
+    }
+    else {
+      $cdn_domain = $result;
+    }
+    return $cdn_domain;
   }
 
 }

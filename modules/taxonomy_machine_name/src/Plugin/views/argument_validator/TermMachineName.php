@@ -3,7 +3,7 @@
 namespace Drupal\taxonomy_machine_name\Plugin\views\argument_validator;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\views\Plugin\views\argument_validator\Entity;
 
@@ -32,7 +32,7 @@ class TermMachineName extends Entity {
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    EntityManagerInterface $entity_manager
+    EntityTypeManagerInterface $entity_manager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_manager);
     // Not handling exploding term names.
