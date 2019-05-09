@@ -123,7 +123,11 @@ function email_registration_cleanup_username($name) {
  */
 function email_registration_form_user_form_alter(&$form, FormStateInterface $form_state) {
   $form['account']['name']['#type'] = 'value';
-  $form['account']['name']['#value'] = 'email_registration_' . user_password();
+  // Provide a random user name only if we are creating a new user, i.e. this
+  // is a registration.
+  if ($form_state->getFormObject()->getEntity()->isNew()) {
+    $form['account']['name']['#value'] = 'email_registration_' . user_password();
+  }
   $form['account']['mail']['#title'] = t('Email');
 }
 
