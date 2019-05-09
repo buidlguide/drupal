@@ -1028,7 +1028,55 @@ ul.social-links li a{
   animation-duration: 0.5s;
   filter: grayscale(1);
 }
-
+body.navbar-is-fixed-top.page-node-type-eb-organization {
+  margin-top: 0px;
+}
+.page-node-type-eb-organization .org-header {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  background: #f9f9f9;
+}
+.page-node-type-eb-organization .org-titles {
+}
+.page-node-type-eb-organization .org-title {
+vertical-align: top;
+text-align: left;
+}
+.page-node-type-eb-organization .org-img img{
+  height: 50px;
+  width: auto;
+}
+.page-node-type-eb-organization h1 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-size: 40px;
+}
+.page-node-type-eb-organization h2 {
+  margin-top: 15px;
+}
+.page-node-type-eb-organization .col-project-hashes {
+  text-align: left;
+}
+.page-node-type-eb-organization .org-menu ul {
+  display: inline-block;
+}
+.page-node-type-eb-organization .org-menu {
+  margin-top: 15px;
+}
+.btn-org-menu {
+  border-radius: 30px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-width: 0px;
+  font-weight: 600;
+}
+.org-subtitles {
+  vertical-align: top;
+  padding-left: 30px;
+}
+.visible-inline-block {
+  display: inline-block;
+}
 @keyframes grey {
   from {
     webkit-filter: grayscale(0);
