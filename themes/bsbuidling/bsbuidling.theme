@@ -24,6 +24,15 @@ function bsbuidling_theme_suggestions_page_alter(array &$suggestions, array $var
   }
 }
 
+/**
+ * Implements hook_theme_suggestions_field_alter().
+ */
+function bsbuidling_theme_suggestions_field_alter(&$suggestions, $variables) {
+  $suggestions[] = 'field__' . 
+    $variables['element']['#field_name'] . '__' . 
+    $variables['element']['#view_mode'];
+}
+
 
 function bsbuidling_css_alter(&$css, \Drupal\Core\Asset\AttachedAssetsInterface $assets) {
   $files = array(

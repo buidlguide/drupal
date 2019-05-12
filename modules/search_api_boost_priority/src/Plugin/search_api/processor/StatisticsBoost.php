@@ -84,6 +84,12 @@ class StatisticsBoost extends ProcessorPluginBase implements PluginFormInterface
     return FALSE;
   }
 
+  /**
+   * Whitelist of allowed entity types.
+   *
+   * @return array
+   *   Whitelist of allowed entity types.
+   */
   private static function allowedEntityTypes() {
     return [
       'node',
@@ -120,7 +126,7 @@ class StatisticsBoost extends ProcessorPluginBase implements PluginFormInterface
       if (isset($this->configuration['boost_table'][$scaleId]['weight'])) {
         $weight = $this->configuration['boost_table'][$scaleId]['weight'];
       }
-      elseif(isset($this->configuration['boost_table']['weight'])) {
+      elseif (isset($this->configuration['boost_table']['weight'])) {
         $weight = $this->configuration['boost_table']['weight'];
       }
 

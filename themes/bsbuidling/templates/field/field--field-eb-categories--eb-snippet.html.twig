@@ -1,0 +1,15 @@
+{% if label_hidden %}
+  {% if multiple %}
+      {% for item in items %}
+        <li class = "li-cat">{{ item.content }}</li>
+      {% endfor %}
+  {% else %}
+    {% for item in items %}
+      <li class = "li-cat">{{ item.content }}</li>
+    {% endfor %}
+  {% endif %}
+{% else %}
+    {% for item in items %}
+      <li class = "li-cat">{{ item.content }}</li>
+    {% endfor %}
+{% endif %}

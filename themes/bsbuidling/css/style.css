@@ -4,8 +4,8 @@
 
 body {
   color: #292b2c;
-  font-family: "Open Sans",sans-serif;
-  letter-spacing: .3px;
+  font-family: arial;
+  letter-spacing: .5px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-font-smoothing: antialiased;
@@ -14,12 +14,14 @@ body {
   font-weight: 400;  
   line-height: 2;
 }
+h1,h2,h3,h4,h5,h6,
+span,p,div,a,article{
+  font-family: arial;
+}
 body.navbar-is-fixed-top {
   margin-top: 45px;
 }
-h1,h2,h3,h4,h5,h6 {
-  font-family: Dosis,sans-serif;
-}
+
 h2, .h2 {
   font-size: 22px;
 }  
@@ -89,7 +91,7 @@ nav#block-bsbuidling-account-menu {
   color: #4d4d4f !important;
   display: block;
   padding-top: 0px;
-  font-family: Dosis,sans-serif;
+  
   font-size: 1.5em;
 }
 .navbar-text {
@@ -113,12 +115,13 @@ nav#block-bsbuidling-account-menu {
 .content .field {
   margin-bottom: 15px;
 }
-
+.equal-cols {
+  display: flex;
+  display: -webkit-flex;
+  flex-wrap: wrap;
+}
 .content .field .field--label {
   margin-bottom: 5px;
-}
-.content .field .field--items {
-  
 }
 .page-header {
   padding-bottom: 0px;
@@ -288,7 +291,7 @@ DIS-article.eb-project.full {
 
 section.home-welcome-section {
   position: relative;
-  font-family: Dosis,sans-serif;
+  
 }
 
 section.home-welcome-section .home-welcome-region {
@@ -328,6 +331,14 @@ body.navbar-is-fixed-top.path-frontpage {
 .hpw-cta {
   margin-top: 30px;
 }
+.hpw-col-buidlers .hpw-cta{
+  float: right;
+  right: 45px;
+}
+#block-homepagecanvas .hpw-cta{ 
+  position: absolute;
+  bottom: 0px; 
+}
 .hpw-desc, 
 .hpw-for {
   font-weight: 500;
@@ -356,6 +367,7 @@ body.navbar-is-fixed-top.path-frontpage {
 .hpw-col-buidlers {
   text-align: right;
   border-right: 3px solid #ffffff;  
+  min-height: 350px;
 }
 
 .hpw-col-projects h3 {
@@ -452,7 +464,7 @@ body.navbar-is-fixed-top.path-frontpage {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 3px;
-  font-family: Dosis,sans-serif;
+  
 }
 .field--type-link table td div.form-item.form-type-entity-autocomplete label,
 .field--type-link table td div.form-item.form-type-textfield label,
@@ -520,7 +532,7 @@ form.node-eb-guide-form {
   outline: none;
   text-transform: uppercase;
   letter-spacing: 0.9px;
-  font-family: Dosis,sans-serif;  
+  
 }  
 a:hover, a:focus {
   color: #1974de;
@@ -615,7 +627,7 @@ article.eb-collections .col-project-hashes {
   border-radius: 15px;
   color: #4d4d4f;
   text-transform: capitalize;
-  font-family: Dosis,sans-serif;
+  
   font-weight: 600;
   letter-spacing: 1.5px;
 }
@@ -709,7 +721,8 @@ article.eb-collections .col-project-hashes {
 }
 .col-search-result h3{
   margin: 0px;
-  font-size: 22px;
+  margin-top: 0px !important;
+  font-size: 20px;
 }
 
 .col-search-result .search-result-excerpt{
@@ -721,6 +734,16 @@ article.eb-collections .col-project-hashes {
 .row.view-content {
   margin: 0px;
 }
+
+.page-node-type-eb-organization .row.view-content {
+  background: #F9F9F9;
+  padding: 15px;
+}
+.page-node-type-eb-organization .row.view-content .col-search-result {
+  background: #ffffff;
+}
+
+
 .pagination > li > a, 
 .pagination > li > span {
   border-color: #50a1ff;
@@ -795,7 +818,7 @@ article.eb-collections .col-project-hashes {
   margin-bottom: 21px;
   font-size: 26px;
   font-weight: 400;
-  font-family: Dosis,sans-serif;
+  
   line-height: 1.1;
   margin-top: 21px;
 } 
@@ -871,15 +894,20 @@ article.eb-project h3.about {
   /* break-inside: avoid-column;         /* IE 11 */
   /* display:table; */
 }
-
+.list-unstyled.pinterest-item a {
+  width: 100%;
+  display: block;
+  font-size: 0.9em;
+}
+a.count-0 {
+  display:none !important;
+}
 .view-eb-tags h4 {
-  margin-top: 3px;
+  margin-top: 8px;
   font-size: 18px;
-  margin-bottom: 0px;
+  margin-bottom: 1px;
 }
-.view-eb-tags ul li {
 
-}
 .view-eb-tags ul li.count-0 {
   display:none !important;
 }
@@ -924,7 +952,7 @@ border: 0px;
     text-align: center;
     padding-top: 5px;
     font-weight: 600;
-    font-family: Dosis,sans-serif;
+    
     letter-spacing: 1px;
 }
 .donation-wrap a {
@@ -951,7 +979,7 @@ border: 0px;
 }
 h4.label {
   color: #292b2c;
-  font-family: Dosis,sans-serif;
+  
   font-size: 1.1em !important;
   padding: 0;
 }
@@ -1051,8 +1079,11 @@ text-align: left;
   margin-bottom: 0px;
   font-size: 40px;
 }
-.page-node-type-eb-organization h2 {
-  margin-top: 15px;
+.page-node-type-eb-organization h3 {
+      margin-top: 15px;
+}
+.page-node-type-eb-organization .row-node-section {
+  margin-bottom: 15px;
 }
 .page-node-type-eb-organization .col-project-hashes {
   text-align: left;
@@ -1089,6 +1120,9 @@ text-align: left;
 }
 
 @media (max-width: 768px) { 
+  .hpw-col-buidlers {
+    min-height: 100px;
+  }
   .navbar-default {
     height: 85px;
     min-height: 35px;
@@ -1137,6 +1171,7 @@ text-align: left;
   #block-homepagecanvas {
     margin-top: 45px;
   }
+
   header#navbar .navbar-header{
     display: inline-block;
     float: left;    
@@ -1175,6 +1210,7 @@ text-align: left;
     border-right: 0px;
     margin-bottom: 60px;
   }  
+  
   .hpw-col-projects {
     text-align: center;
   }
@@ -1291,6 +1327,11 @@ text-align: left;
     height: 28px;
     margin-top: 5px;
     padding-top: 3px;
+  }
+  #block-homepagecanvas .hpw-cta {
+    position: relative;
+    float: none;
+    right: auto;
   }
 }
 @media (max-width: 360px) { 

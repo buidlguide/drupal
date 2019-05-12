@@ -15,8 +15,8 @@ libraries:
   - scheduler/admin
   - vertical-tabs
 
-# Information added by Drupal.org packaging script on 2019-04-20
-version: '8.x-1.0+36-dev'
+# Information added by Drupal.org packaging script on 2019-05-01
+version: '8.x-1.0+40-dev'
 core: '8.x'
 project: 'scheduler'
-datestamp: 1555777688
+datestamp: 1556738885

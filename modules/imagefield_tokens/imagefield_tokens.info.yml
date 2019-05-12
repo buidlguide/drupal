@@ -4,11 +4,11 @@ description: Provides new widget type for Image field to allow to use tokens for
 # core: 8.x
 package: Image
 dependencies:
-  - drupal:token
+  - token:token
   - drupal:image
 
-# Information added by Drupal.org packaging script on 2019-05-07
-version: '8.x-2.0'
+# Information added by Drupal.org packaging script on 2019-05-10
+version: '8.x-2.1'
 core: '8.x'
 project: 'imagefield_tokens'
-datestamp: 1557246493
+datestamp: 1557492791

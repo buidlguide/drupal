@@ -65,9 +65,6 @@
  *   in different view modes.
  */
 #}
-
-
-
 {%
   set classes = [
     node.bundle|clean_class,
@@ -76,67 +73,30 @@
     not node.isPublished() ? 'is-unpublished',
     view_mode ? view_mode|clean_class,
     'clearfix',
+    'col-search-result',
   ]
 %}
+{% spaceless %}
 <article{{ attributes.addClass(classes) }}>
-
-
-
   {{ title_prefix }}
-  {% if not page %}
-    <h2{{ title_attributes }}>
-      <a href="{{ url }}" rel="bookmark">{{ label }}</a>
-    </h2>
-  {% endif %}
+  <h3{{ title_attributes }}><a href="{{ url }}" rel="bookmark">{{ label }}</a></h3>
   {{ title_suffix }}
-
-
-
-  <div class = "row row-project-header row-node-section" id = "org-about">
-    
-    <div class = "col-md-12 col-project-infos">
-      <h3>About</h3>
-      {% if content.field_eb_body %}
-      <div class = "field-project-wrap">
-        {{ content.field_eb_body }}
-      </div>  
-      {% endif %}    
-    </div>
-
-    <div class = "col-md-12 col-project-logo col-project-hashes">
-      {% if content.field_eb_tags %}
-        {{ content.field_eb_tags }}
-      {% endif %}
-    </div>    
-  </div>
-
-  <div class = "row row-project-links row-node-section" id = "org-links">
-
-   <div class = "col-md-12 col-project-links link-list-buttons ">
-      {% if content.field_eb_links %}
-        {{ content.field_eb_links }}
-      {% endif %}     
-    </div>  
-  </div>
-
-  {% if drupal_view_result('eb_guides_per_project', 'block_1') %}
-  <div class = "row row-project-guideslist row-node-section">
-  <div class = "col-md-12">
-    {{ drupal_view('eb_guides_per_project', 'block_1') }}
-  </div>
+  {% if content.field_eb_sub_title %}<div class="search-result-subtitle">{{ content.field_eb_sub_title }}</div>{% endif %}
+  {% if content.field_eb_body %}
+  <div class="search-result-excerpt">
+    {% set eb_body %}
+      {{ content.field_eb_body }}
+    {% endset %}
+    {{ eb_body |striptags }}
   </div>
   {% endif %}
-  <div id = "org-faqs"></div>
-  {% if drupal_view_result('eb_faqs_embed', 'nodes_embed') %}
-  <div class = "row row-project-faqs row-node-section">
-  <div class = "col-md-12">
-    {{ drupal_view('eb_faqs_embed', 'nodes_embed') }}
+  <div class = "tags">
+    <ul>
+      <li class = "li-type">{{ node.type.entity.label }}</li>
+      {{ content.field_eb_categories }}
+      {{ content.field_eb_tags }}
+    </ul>
   </div>
-  </div>
-  {% endif %}
-
-  <div{{ content_attributes.addClass('content') }}>
-    {{ content|without('field_eb_sub_title', 'field_eb_body', 'field_eb_logo', 'field_eb_links', 'field_eb_tags', 'field_eb_categories') }}
-  </div>
-
 </article>
+{% endspaceless %}
+
