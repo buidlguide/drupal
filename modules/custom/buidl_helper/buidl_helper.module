@@ -4,6 +4,7 @@ use Drupal\pathauto\AliasCleaner;
 
 module_load_include('inc', 'buidl_helper', 'buidl_helper');
 module_load_include('inc', 'buidl_helper', 'buidl_helper.breadcrumb');
+module_load_include('inc', 'buidl_helper', 'buidl_helper.formalters');
 
 
 function buidl_helper_pathauto_alias_alter(&$alias, array &$context){

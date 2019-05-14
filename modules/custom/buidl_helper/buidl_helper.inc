@@ -179,3 +179,87 @@ function _buidl_helper_get_guide_parents_tree(&$guide, $breadcrumb = FALSE) {
   }
   return $URL;
 }
+//Get an entity view for an entity
+function _buidl_helper_get_entity_view($entity_id, $entity_type = 'node', $view_mode = 'eb_snippet', $render = TRUE){
+  if(!intval($entity_id)) {
+    return FALSE;
+  }
+  $allowed_types = array('node', 'taxonomy_term');
+  if(!in_array($entity_type, $allowed_types)) {
+    return FALSE;
+  }
+  $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($entity_id);
+  $output = \Drupal::entityTypeManager()->getViewBuilder($entity_type)->view($entity, $view_mode);
+
+  /*
+  if($output && is_object($output)) {
+    return $output->label();  
+  }
+  */
+
+  if($render && $output) {
+    return render($output);
+  }
+
+  return $output;
+}
+
+//Get entity type of current page
+function _buidl_guide_get_page_entity() {
+  $page_entity = &drupal_static(__FUNCTION__, NULL);
+  if (isset($page_entity)) {
+    return $page_entity ?: NULL;
+  }
+  $current_route = \Drupal::routeMatch();
+  foreach ($current_route->getParameters() as $param) {
+    if ($param instanceof EntityInterface) {
+      $page_entity = $param;
+      break;
+    }
+  }
+  if (!isset($page_entity)) {
+    // Some routes don't properly define entity parameters.
+    // Thus, try to load them by its raw Id, if given.
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $types = $entity_type_manager->getDefinitions();
+    foreach ($current_route->getParameters()->keys() as $param_key) {
+      if (!isset($types[$param_key])) {
+        continue;
+      }
+      if ($param = $current_route->getParameter($param_key)) {
+        if (is_string($param) || is_numeric($param)) {
+          try {
+            $page_entity = $entity_type_manager->getStorage($param_key)->load($param);
+          }
+          catch (\Exception $e) {
+          }
+        }
+        break;
+      }
+    }
+  }
+  if (!isset($page_entity) || !$page_entity->access('view')) {
+    $page_entity = FALSE;
+    return NULL;
+  }
+  return $page_entity;
+}
+
+function _buidl_guide_get_support_link(&$variables) {
+  $variables['eb_entity_id'] = NULL;
+  $variables['eb_entity_type'] = NULL;
+  $variables['eb_support_url'] = '/support';
+
+  if(isset($variables['node']) &&  $variables['node']){
+    $variables['eb_entity_id'] = $variables['node']->id();
+    $variables['eb_entity_type'] = 'node';
+  }  
+  if (\Drupal::routeMatch()->getRouteName() == 'entity.taxonomy_term.canonical') {
+    $variables['eb_entity_id'] = \Drupal::routeMatch()->getRawParameter('taxonomy_term');
+    $variables['eb_entity_type'] = 'taxonomy_term';
+  }  
+  if($variables['eb_entity_id'] && $variables['eb_entity_type']) {
+    $params = '/support?id=' . $variables['eb_entity_id'] . '&type=' . $variables['eb_entity_type'];
+    $variables['eb_support_url'] = $params;
+  }
+}

@@ -14,6 +14,29 @@ body {
   font-weight: 400;  
   line-height: 2;
 }
+h1,h2,h3,h4,h5,h6 {
+  color: #444444;
+}
+.path-frontpage section.home-welcome-section h1,
+.path-frontpage section.home-welcome-section h2,
+.path-frontpage section.home-welcome-section h3,
+.path-frontpage section.home-welcome-section h4,
+.path-frontpage section.home-welcome-section h5,
+.path-frontpage section.home-welcome-section h6,
+.path-frontpage section.home-buidler-section h1,
+.path-frontpage section.home-buidler-section h2,
+.path-frontpage section.home-buidler-section h3,
+.path-frontpage section.home-buidler-section h4,
+.path-frontpage section.home-buidler-section h5,
+.path-frontpage section.home-buidler-section h6
+.path-frontpage section.home-projects-section h1,
+.path-frontpage section.home-projects-section h2,
+.path-frontpage section.home-projects-section h3,
+.path-frontpage section.home-projects-section h4,
+.path-frontpage section.home-projects-section h5,
+.path-frontpage section.home-projects-section h6 {
+  color: #ffffff;
+}
 h1,h2,h3,h4,h5,h6,
 span,p,div,a,article{
   font-family: arial;
@@ -565,7 +588,7 @@ a:hover, a:focus {
   border-radius: 15px;
 }
 .search-result-subtitle {
-  font-size: 0.8em;
+  font-size: 0.9em;
 }
 .row-project-guideslist .view .view-content .row-item a h4 {
   margin-top: 0px;
@@ -621,14 +644,12 @@ article.eb-collections .col-project-hashes {
   display: inline-block;
 }
 .col-project-hashes ul li a{
-  font-size: 12px;
+  font-size: 11px;
   background: #ecf0f1;
   padding: 2px 8px;
   border-radius: 15px;
   color: #4d4d4f;
   text-transform: capitalize;
-  
-  font-weight: 600;
   letter-spacing: 1.5px;
 }
 
@@ -726,7 +747,12 @@ article.eb-collections .col-project-hashes {
 }
 
 .col-search-result .search-result-excerpt{
-  font-size: 0.9em;
+  font-size: 0.8em;
+}
+
+.form-checkboxes input[type="radio"], 
+.form-checkboxes input[type="checkbox"] {
+  margin: 8px -15px 0px;
 }
 .col-search-result .tags{
   
@@ -734,12 +760,51 @@ article.eb-collections .col-project-hashes {
 .row.view-content {
   margin: 0px;
 }
+.field--type-link {
+  background: #f9f9f9;
+  padding: 15px;
+  
+}
+legend {
+  margin-bottom: 0px;
+}
+.supportbox {
+  position: fixed;
+  bottom: 30px;
+  right: 15px;  
+  z-index: 100;
+}
+.supportbox a {
+  border-radius: 30px;
+  font-weight: bold;  
+}
+.radio, .checkbox {
+  margin-top: 0px;
+}
+
+.field--type-link .draggable td .form-item{
+  float: left;
+  width: 49%;
+  margin-right: 0.9%;
+  margin-bottom: 0px;
+}
+.field--type-link table {
+  margin-bottom: 0px;
+}
+.field--type-link .draggable td .form-item label {
+  display: none;
+}
+form.contact-form .col-search-result {
+  margin-bottom: 0px;
+}
 
 .page-node-type-eb-organization .row.view-content {
   background: #F9F9F9;
   padding: 15px;
+  margin-bottom: 15px;
 }
-.page-node-type-eb-organization .row.view-content .col-search-result {
+.page-node-type-eb-project .col-search-result,
+.page-node-type-eb-organization .col-search-result {
   background: #ffffff;
 }
 
@@ -938,11 +1003,18 @@ section.bottom_navs {
 }
 .buidlmenuarea .btn-menu {
 height: 29px;
-margin-top: 8px;
+margin-top: 7px;
 font-weight: 600;
 font-size: 15px;
 padding-top: 4px;
 border: 0px;
+}
+.view-taxonomy-term .view-content,
+.view-taxonomy-term .view-header {
+  display: block;
+  clear: both;
+  width: 100%;
+  float: left;
 }
 
 .donation-wrap {

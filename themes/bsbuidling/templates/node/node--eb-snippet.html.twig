@@ -78,23 +78,15 @@
 %}
 {% spaceless %}
 <article{{ attributes.addClass(classes) }}>
-  {{ title_prefix }}
-  <h3{{ title_attributes }}><a href="{{ url }}" rel="bookmark">{{ label }}</a></h3>
-  {{ title_suffix }}
-  {% if content.field_eb_sub_title %}<div class="search-result-subtitle">{{ content.field_eb_sub_title }}</div>{% endif %}
-  {% if content.field_eb_body %}
-  <div class="search-result-excerpt">
-    {% set eb_body %}
-      {{ content.field_eb_body }}
-    {% endset %}
-    {{ eb_body |striptags }}
-  </div>
-  {% endif %}
+  <h3{{ title_attributes }}><a href="{{ url }}">{{ node.label }}</a></h3>
+  {% if content.field_eb_sub_title %}<div class="search-result-subtitle">{% spaceless %}{{ content.field_eb_sub_title }}{% endspaceless %}</div>{% endif %}
+  {% if content.field_eb_body %}<div class="search-result-excerpt">{% spaceless %}{{ content.field_eb_body|render|striptags }} {% endspaceless %}</div>{% endif %}
   <div class = "tags">
     <ul>
       <li class = "li-type">{{ node.type.entity.label }}</li>
       {{ content.field_eb_categories }}
       {{ content.field_eb_tags }}
+      {{ content.field_eb_project }}
     </ul>
   </div>
 </article>

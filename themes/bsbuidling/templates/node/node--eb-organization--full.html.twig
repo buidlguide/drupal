@@ -78,10 +78,22 @@
     'clearfix',
   ]
 %}
+
+  {% if drupal_view_result('eb_guides_per_project', 'block_2') or drupal_view_result('eb_guides_per_project', 'org_guide')%}
+  <div class = "row row-project-builds row-node-section" id = "org-builds">
+  <div class = "col-md-12"><h3>Contribute / BUIDL</h3></div>
+  <div class = "col-md-12">
+    {% if drupal_view_result('eb_guides_per_project', 'org_guide') %}
+      {{ drupal_view('eb_guides_per_project', 'org_guide') }}
+    {% endif %}  
+    {% if drupal_view_result('eb_guides_per_project', 'block_2') %}
+      {{ drupal_view('eb_guides_per_project', 'block_2') }}
+    {% endif %}    
+  </div>
+  </div>
+  {% endif %} 
+
 <article{{ attributes.addClass(classes) }}>
-
-
-
   {{ title_prefix }}
   {% if not page %}
     <h2{{ title_attributes }}>
@@ -89,9 +101,6 @@
     </h2>
   {% endif %}
   {{ title_suffix }}
-
-
-
   <div class = "row row-project-header row-node-section" id = "org-about">
     
     <div class = "col-md-12 col-project-infos">
@@ -118,14 +127,6 @@
       {% endif %}     
     </div>  
   </div>
-
-  {% if drupal_view_result('eb_guides_per_project', 'block_1') %}
-  <div class = "row row-project-guideslist row-node-section">
-  <div class = "col-md-12">
-    {{ drupal_view('eb_guides_per_project', 'block_1') }}
-  </div>
-  </div>
-  {% endif %}
   <div id = "org-faqs"></div>
   {% if drupal_view_result('eb_faqs_embed', 'nodes_embed') %}
   <div class = "row row-project-faqs row-node-section">
