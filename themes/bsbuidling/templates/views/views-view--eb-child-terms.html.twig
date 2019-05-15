@@ -1,0 +1,10 @@
+
+  {% if rows %}
+    <div class="col-project-hashes view-content child-cats">
+      {{ rows }}
+    </div>
+  {% elseif empty %}
+    <div class="view-empty">
+      {{ empty }}
+    </div>
+  {% endif %}

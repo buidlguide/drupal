@@ -1,5 +1,7 @@
 <?php
 
+//File for form alters and forms
+
 use Drupal\Component\Utility\Html;
 
 function buidl_helper_form_contact_message_eb_create_buidl_guide_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
@@ -29,3 +31,4 @@ function buidl_helper_form_contact_message_eb_create_buidl_guide_form_alter(&$fo
     $form['field_eb_referer_url']['widget'][0]['value']['#default_value'] = trim($_SERVER['HTTP_REFERER']);
   }
 }
+
