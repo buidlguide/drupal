@@ -775,8 +775,10 @@ legend {
   z-index: 100;
 }
 .supportbox a {
-  border-radius: 30px;
-  font-weight: bold;  
+    border-radius: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    font-size: 18px;  
 }
 .radio, .checkbox {
   margin-top: 0px;
