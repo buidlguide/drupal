@@ -3,6 +3,7 @@
 namespace Drupal\views_bulk_operations;
 
 use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Defines module Batch API methods.
@@ -21,10 +22,10 @@ class ViewsBulkOperationsBatch {
   /**
    * Set message function wrapper.
    *
-   * @see \drupal_set_message()
+   * @see \Drupal\Core\Messenger\MessengerInterface
    */
   public static function message($message = NULL, $type = 'status', $repeat = TRUE) {
-    drupal_set_message($message, $type, $repeat);
+    \Drupal::messenger()->addMessage($message, $type, $repeat);
   }
 
   /**
@@ -86,7 +87,7 @@ class ViewsBulkOperationsBatch {
     if ($success) {
       $results['redirect_url'] = $results['redirect_after_processing'];
       unset($results['redirect_after_processing']);
-      $tempstore_factory = \Drupal::service('user.private_tempstore');
+      $tempstore_factory = \Drupal::service('tempstore.private');
       $current_user = \Drupal::service('current_user');
       $tempstore_name = 'views_bulk_operations_' . $results['view_id'] . '_' . $results['display_id'];
       $results['prepopulated'] = TRUE;
@@ -161,6 +162,9 @@ class ViewsBulkOperationsBatch {
         '@operations' => implode(', ', $details),
       ]);
       static::message($message);
+      if (isset($results['redirect_url'])) {
+        return new RedirectResponse($results['redirect_url']->setAbsolute()->toString());
+      }
     }
     else {
       $message = static::t('Finished with an error.');

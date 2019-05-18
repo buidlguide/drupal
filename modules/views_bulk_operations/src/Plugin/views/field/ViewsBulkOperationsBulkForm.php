@@ -6,6 +6,7 @@ use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RedirectDestinationTrait;
+use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\Plugin\views\field\UncacheableFieldHandlerTrait;
@@ -17,7 +18,6 @@ use Drupal\views_bulk_operations\Service\ViewsbulkOperationsViewDataInterface;
 use Drupal\views_bulk_operations\Service\ViewsBulkOperationsActionManager;
 use Drupal\views_bulk_operations\Service\ViewsBulkOperationsActionProcessorInterface;
 use Drupal\views_bulk_operations\Form\ViewsBulkOperationsFormTrait;
-use Drupal\user\PrivateTempStoreFactory;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Url;
@@ -38,7 +38,7 @@ class ViewsBulkOperationsBulkForm extends FieldPluginBase implements CacheableDe
   /**
    * Object that gets the current view data.
    *
-   * @var \Drupal\views_bulk_operations\ViewsbulkOperationsViewDataInterface
+   * @var \Drupal\views_bulk_operations\Service\ViewsbulkOperationsViewDataInterface
    */
   protected $viewData;
 
@@ -57,9 +57,9 @@ class ViewsBulkOperationsBulkForm extends FieldPluginBase implements CacheableDe
   protected $actionProcessor;
 
   /**
-   * User private temporary storage factory.
+   * The tempstore service.
    *
-   * @var \Drupal\user\PrivateTempStoreFactory
+   * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
   protected $tempStoreFactory;
 
@@ -116,7 +116,7 @@ class ViewsBulkOperationsBulkForm extends FieldPluginBase implements CacheableDe
    *   Extended action manager object.
    * @param \Drupal\views_bulk_operations\Service\ViewsBulkOperationsActionProcessorInterface $actionProcessor
    *   Views Bulk Operations action processor.
-   * @param \Drupal\user\PrivateTempStoreFactory $tempStoreFactory
+   * @param \Drupal\Core\TempStore\PrivateTempStoreFactory $tempStoreFactory
    *   User private temporary storage factory.
    * @param \Drupal\Core\Session\AccountInterface $currentUser
    *   The current user object.
@@ -155,7 +155,7 @@ class ViewsBulkOperationsBulkForm extends FieldPluginBase implements CacheableDe
       $container->get('views_bulk_operations.data'),
       $container->get('plugin.manager.views_bulk_operations_action'),
       $container->get('views_bulk_operations.processor'),
-      $container->get('user.private_tempstore'),
+      $container->get('tempstore.private'),
       $container->get('current_user'),
       $container->get('request_stack')
     );
@@ -212,9 +212,23 @@ class ViewsBulkOperationsBulkForm extends FieldPluginBase implements CacheableDe
       'batch_size' => $this->options['batch'] ? $this->options['batch_size'] : 0,
       'total_results' => $this->viewData->getTotalResults($this->options['clear_on_exposed']),
       'arguments' => $this->view->args,
-      'redirect_url' => Url::createFromRequest(clone $this->requestStack->getCurrentRequest()),
       'exposed_input' => $this->view->getExposedInput(),
     ];
+
+    // Set redirect URL taking destination into account.
+    $request = $this->requestStack->getCurrentRequest();
+    $destination = $request->query->get('destination');
+    if ($destination) {
+      $request->query->remove('destination');
+      unset($variable['exposed_input']['destination']);
+      if (strpos($destination, '/') !== 0) {
+        $destination = '/' . $destination;
+      }
+      $variable['redirect_url'] = Url::fromUserInput($destination, []);
+    }
+    else {
+      $variable['redirect_url'] = Url::createFromRequest(clone $this->requestStack->getCurrentRequest());
+    }
 
     // Set exposed filters values to be kept after action execution.
     $query = $variable['redirect_url']->getOption('query');

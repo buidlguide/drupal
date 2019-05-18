@@ -3,7 +3,7 @@
 namespace Drupal\Tests\views_bulk_operations\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\simpletest\NodeCreationTrait;
+use Drupal\Tests\node\Traits\NodeCreationTrait;
 use Drupal\node\Entity\NodeType;
 use Drupal\user\Entity\User;
 use Drupal\views\Views;

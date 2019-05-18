@@ -4,11 +4,13 @@ namespace Drupal\views_bulk_operations\Form;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 
 /**
  * Defines common methods for Views Bulk Operations forms.
  */
 trait ViewsBulkOperationsFormTrait {
+  use MessengerTrait;
 
   /**
    * The tempstore object associated with the current view.
@@ -236,7 +238,7 @@ trait ViewsBulkOperationsFormTrait {
    */
   public function cancelForm(array &$form, FormStateInterface $form_state) {
     $form_data = $form_state->get('views_bulk_operations');
-    drupal_set_message($this->t('Canceled "%action".', ['%action' => $form_data['action_label']]));
+    $this->messenger()->addMessage($this->t('Canceled "%action".', ['%action' => $form_data['action_label']]));
     $form_state->setRedirectUrl($form_data['redirect_url']);
   }
 

@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\views_bulk_operations\Functional;
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Tests\BrowserTestBase;
 
 /**
@@ -107,7 +108,7 @@ class ViewsBulkOperationsBulkFormTest extends BrowserTestBase {
     // Make sure a checkbox appears on all rows.
     $edit = [];
     for ($i = 0; $i < 4; $i++) {
-      $assertSession->fieldExists('edit-views-bulk-operations-bulk-form-' . $i, NULL, format_string('The checkbox on row @row appears.', ['@row' => $i]));
+      $assertSession->fieldExists('edit-views-bulk-operations-bulk-form-' . $i, NULL, new FormattableMarkup('The checkbox on row @row appears.', ['@row' => $i]));
     }
 
     // The advanced action should not be shown on the form - no permission.
