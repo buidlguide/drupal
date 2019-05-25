@@ -175,10 +175,7 @@ class ViewsBulkOperationsViewData implements ViewsBulkOperationsViewDataInterfac
       $view = Views::getView($this->view->id());
       $view->setDisplay($this->view->current_display);
       $view->get_total_rows = TRUE;
-      // To improve performance, let's limit the number of results,
-      // we cannot use the count query as it may not be available on
-      // some custom views.
-      $view->setItemsPerPage(1);
+
       // We have to set exposed input to some value here, empty
       // value will be overwritten with query params by Views so
       // setting an empty array wouldn't work.

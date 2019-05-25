@@ -6,8 +6,8 @@ package: Testing
 dependencies:
   - scheduler:scheduler
 
-# Information added by Drupal.org packaging script on 2019-05-01
-version: '8.x-1.0+40-dev'
+# Information added by Drupal.org packaging script on 2019-05-22
+version: '8.x-1.0+44-dev'
 core: '8.x'
 project: 'scheduler'
-datestamp: 1556738885
+datestamp: 1558542492

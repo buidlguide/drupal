@@ -772,6 +772,11 @@ class ViewsBulkOperationsBulkForm extends FieldPluginBase implements CacheableDe
           continue;
         }
 
+        // Check custom access, if defined.
+        if (!empty($definition['requirements']['_custom_access']) && !$definition['class']::customAccess($this->currentUser, $this->view)) {
+          continue;
+        }
+
         // Override label if applicable.
         if (!empty($this->options['preconfiguration'][$id]['label_override'])) {
           $this->bulkOptions[$id] = $this->options['preconfiguration'][$id]['label_override'];
