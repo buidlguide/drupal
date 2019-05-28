@@ -215,6 +215,12 @@ class ViewsBulkOperationsBulkForm extends FieldPluginBase implements CacheableDe
       'exposed_input' => $this->view->getExposedInput(),
     ];
 
+    // A fix to account for empty initial exposed input vs the default values
+    // difference.
+    if (empty($variable['exposed_input'])) {
+      $variable['exposed_input'] = $this->view->exposed_raw_input;
+    }
+
     // Set redirect URL taking destination into account.
     $request = $this->requestStack->getCurrentRequest();
     $destination = $request->query->get('destination');
@@ -405,7 +411,7 @@ class ViewsBulkOperationsBulkForm extends FieldPluginBase implements CacheableDe
     $form['clear_on_exposed'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Clear selection when exposed filters change.'),
-      '#description' => $this->t('With this enabled, selection will be cleard everey time exposed filters are changed, and select all will select all rows with exposed filters applied. When disabled, select all selects all results with empty exposed filters and one can change exposed filters while selecting rows.'),
+      '#description' => $this->t('With this enabled, selection will be cleared everey time exposed filters are changed, select all will select all rows with exposed filters applied and view total count will take exposed filters into account. When disabled, select all selects all results in the view with empty exposed filters and one can change exposed filters while selecting rows without the selection being lost.'),
       '#default_value' => $this->options['clear_on_exposed'],
     ];
 

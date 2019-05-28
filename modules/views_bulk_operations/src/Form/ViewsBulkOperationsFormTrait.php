@@ -85,8 +85,8 @@ trait ViewsBulkOperationsFormTrait {
         '#theme' => 'item_list',
         '#items' => $form_data['entity_labels'],
       ];
-      $more = (count($form_data['list']) - count($form_data['entity_labels'])) > 0;
-      if ($more) {
+      $more = count($form_data['list']) - count($form_data['entity_labels']);
+      if ($more > 0) {
         $renderable['#items'][] = [
           '#children' => $this->t('..plus @count more..', [
             '@count' => $more,
