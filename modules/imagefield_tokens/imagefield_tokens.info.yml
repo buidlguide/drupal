@@ -7,8 +7,8 @@ dependencies:
   - token:token
   - drupal:image
 
-# Information added by Drupal.org packaging script on 2019-05-10
-version: '8.x-2.1'
+# Information added by Drupal.org packaging script on 2019-06-05
+version: '8.x-2.11'
 core: '8.x'
 project: 'imagefield_tokens'
-datestamp: 1557492791
+datestamp: 1559724603

@@ -5,6 +5,7 @@ entity.taxonomy_vocabulary.merge_form:
     _title_callback: 'Drupal\term_merge\Form\MergeTerms::titleCallback'
   requirements:
     _permission: 'merge taxonomy terms'
+    _term_merge_access_check: 'TRUE'
   options:
     _admin_route: TRUE
 
@@ -15,6 +16,7 @@ entity.taxonomy_vocabulary.merge_target:
     _title_callback: 'Drupal\term_merge\Form\MergeTermsTarget::titleCallback'
   requirements:
     _permission: 'merge taxonomy terms'
+    _term_merge_access_check: 'TRUE'
   options:
     _admin_route: TRUE
 
@@ -25,5 +27,6 @@ entity.taxonomy_vocabulary.merge_confirm:
     _title_callback: 'Drupal\term_merge\Form\MergeTermsConfirm::titleCallback'
   requirements:
     _permission: 'merge taxonomy terms'
+    _term_merge_access_check: 'TRUE'
   options:
     _admin_route: TRUE

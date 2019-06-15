@@ -91,7 +91,7 @@ class ReferenceMigratorTest extends KernelTestBase {
     $sut = new ReferenceMigrator($this->entityTypeManager, \Drupal::service('term_reference_change.reference_finder'));
     $sut->migrateReference($sourceTerm, $targetTerm);
 
-    $this->assertNodeReferencesTerm($node, $targetTerm);
+    $this->assertNodeReferencesTermOnce($node, $targetTerm);
   }
 
   /**
@@ -108,8 +108,8 @@ class ReferenceMigratorTest extends KernelTestBase {
     $sut = new ReferenceMigrator($this->entityTypeManager, \Drupal::service('term_reference_change.reference_finder'));
     $sut->migrateReference($sourceTerm, $targetTerm, ['node' => [$node1->id()]]);
 
-    $this->assertNodeReferencesTerm($node1, $targetTerm);
-    $this->assertNodeReferencesTerm($node2, $sourceTerm);
+    $this->assertNodeReferencesTermOnce($node1, $targetTerm);
+    $this->assertNodeReferencesTermOnce($node2, $sourceTerm);
   }
 
   /**
@@ -126,7 +126,7 @@ class ReferenceMigratorTest extends KernelTestBase {
     $sut = new ReferenceMigrator($this->entityTypeManager, \Drupal::service('term_reference_change.reference_finder'));
     $sut->migrateReference($sourceTerm, $targetTerm);
 
-    $this->assertNodeReferencesTerm($node1, $targetTerm);
+    $this->assertNodeReferencesTermOnce($node1, $targetTerm);
   }
 
   /**
@@ -143,7 +143,7 @@ class ReferenceMigratorTest extends KernelTestBase {
     $sut = new ReferenceMigrator($this->entityTypeManager, \Drupal::service('term_reference_change.reference_finder'));
     $sut->migrateReference($sourceTerm, $targetTerm);
 
-    $this->assertNodeReferencesTerm($node1, $targetTerm);
+    $this->assertNodeReferencesTermOnce($node1, $targetTerm);
   }
 
   /**
@@ -151,16 +151,59 @@ class ReferenceMigratorTest extends KernelTestBase {
    *
    * @test
    */
-  public function doesNotCreateDuplicates() {
-    $this->setUpContentType('article', 'field_category');
+  public function doesNotCreateDuplicatesWhen() {
     $sourceTerm = $this->createTerm($this->vocabulary);
     $targetTerm = $this->createTerm($this->vocabulary);
-    $node1 = $this->createNode(['field_terms' => ['target_id' => $sourceTerm->id()], ['target_id' => $targetTerm->id()]]);
+    $node1 = $this->createNode(
+      [
+        'field_terms' => [
+          [
+            'target_id' => $sourceTerm->id(),
+          ],
+          [
+            'target_id' => $targetTerm->id(),
+          ],
+        ],
+      ]
+    );
+    $this->assertNodeReferencesTermOnce($node1, $sourceTerm);
+    $this->assertNodeReferencesTermOnce($node1, $targetTerm);
 
     $sut = new ReferenceMigrator($this->entityTypeManager, \Drupal::service('term_reference_change.reference_finder'));
     $sut->migrateReference($sourceTerm, $targetTerm);
 
-    $this->assertNodeReferencesTerm($node1, $targetTerm);
+    $this->assertNodeReferencesTermOnce($node1, $targetTerm);
+  }
+
+  /**
+   * Test that merging referenced A and B into unreferenced C is without dupes.
+   *
+   * @test
+   */
+  public function regression3014387() {
+    $a = $this->createTerm($this->vocabulary);
+    $b = $this->createTerm($this->vocabulary);
+    $c = $this->createTerm($this->vocabulary);
+    $node1 = $this->createNode(
+      [
+        'field_terms' => [
+          [
+            'target_id' => $a->id(),
+          ],
+          [
+            'target_id' => $b->id(),
+          ],
+        ],
+      ]
+    );
+    $this->assertNodeReferencesTermOnce($node1, $a);
+    $this->assertNodeReferencesTermOnce($node1, $b);
+
+    $sut = new ReferenceMigrator($this->entityTypeManager, \Drupal::service('term_reference_change.reference_finder'));
+    $sut->migrateReference($a, $c);
+    $sut->migrateReference($b, $c);
+
+    $this->assertNodeReferencesTermOnce($node1, $c);
   }
 
   /**
@@ -171,14 +214,22 @@ class ReferenceMigratorTest extends KernelTestBase {
    * @param \Drupal\taxonomy\TermInterface $targetTerm
    *   The target taxonomy term.
    */
-  private function assertNodeReferencesTerm(NodeInterface $node, TermInterface $targetTerm) {
+  private function assertNodeReferencesTermOnce(NodeInterface $node, TermInterface $targetTerm) {
     /** @var \Drupal\node\Entity\Node $loadedNode */
     $loadedNode = $this->entityTypeManager->getStorage('node')
       ->load($node->id());
     $referencedTerms = $loadedNode->field_terms->getValue();
-    self::assertCount(1, $referencedTerms);
-    $firstReference = reset($referencedTerms);
-    self::assertEquals($targetTerm->id(), $firstReference['target_id']);
+
+    $referenceCount = 0;
+    foreach ($referencedTerms as $term) {
+      if ($targetTerm->id() != $term['target_id']) {
+        continue;
+      }
+
+      $referenceCount++;
+    }
+
+    self::assertSame(1, $referenceCount);
   }
 
   /**
@@ -194,7 +245,7 @@ class ReferenceMigratorTest extends KernelTestBase {
     $entityType = 'node';
     $fieldLabel = 'Terms';
     $targetEntityType = 'taxonomy_term';
-    $this->createEntityReferenceField($entityType, $bundle, $fieldName, $fieldLabel, $targetEntityType);
+    $this->createEntityReferenceField($entityType, $bundle, $fieldName, $fieldLabel, $targetEntityType, 'default', [], -1);
   }
 
 }

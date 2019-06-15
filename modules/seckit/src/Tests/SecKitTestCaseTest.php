@@ -94,9 +94,10 @@ class SecKitTestCaseTest extends WebTestBase {
       'seckit_xss[csp][font-src]' => '*',
       'seckit_xss[csp][connect-src]' => '*',
       'seckit_xss[csp][report-uri]' => $this->reportPath,
+      'seckit_xss[csp][upgrade-req]' => TRUE,
     ];
     $this->drupalPostForm('admin/config/system/seckit', $form, t('Save configuration'));
-    $expected = 'default-src *; script-src *; object-src *; style-src *; img-src *; media-src *; frame-src *; frame-ancestors *; child-src *; font-src *; connect-src *; report-uri ' . base_path() . $this->reportPath;
+    $expected = 'default-src *; script-src *; object-src *; style-src *; img-src *; media-src *; frame-src *; frame-ancestors *; child-src *; font-src *; connect-src *; report-uri ' . base_path() . $this->reportPath . '; upgrade-insecure-requests';
     $this->assertEqual($expected, $this->drupalGetHeader('Content-Security-Policy'), t('Content-Security-Policy has all the directives.'));
     $this->assertEqual($expected, $this->drupalGetHeader('X-Content-Security-Policy'), t('X-Content-Security-Policy has all the directives.'));
     $this->assertEqual($expected, $this->drupalGetHeader('X-WebKit-CSP'), t('X-WebKit-CSP has all the directives.'));
@@ -122,9 +123,10 @@ class SecKitTestCaseTest extends WebTestBase {
       'seckit_xss[csp][font-src]' => '*',
       'seckit_xss[csp][connect-src]' => '*',
       'seckit_xss[csp][report-uri]' => $this->reportPath,
+      'seckit_xss[csp][upgrade-req]' => TRUE,
     ];
     $this->drupalPostForm('admin/config/system/seckit', $form, t('Save configuration'));
-    $expected = 'default-src *; script-src *; object-src *; style-src *; img-src *; media-src *; frame-src *; frame-ancestors *; child-src *; font-src *; connect-src *; report-uri ' . base_path() . $this->reportPath;
+    $expected = 'default-src *; script-src *; object-src *; style-src *; img-src *; media-src *; frame-src *; frame-ancestors *; child-src *; font-src *; connect-src *; report-uri ' . base_path() . $this->reportPath . '; upgrade-insecure-requests';
     $this->assertEqual($expected, $this->drupalGetHeader('Content-Security-Policy'), t('Content-Security-Policy has all the directives.'));
     $this->assertFalse($this->drupalGetHeader('X-Content-Security-Policy'), t('Vendor prefixed X-Content-Security-Policy header is disabled.'));
     $this->assertFalse($this->drupalGetHeader('X-WebKit-CSP'), t('Vendor prefixed X-WebKit-CSP header is disabled.'));
@@ -150,9 +152,10 @@ class SecKitTestCaseTest extends WebTestBase {
       'seckit_xss[csp][font-src]' => '*',
       'seckit_xss[csp][connect-src]' => '*',
       'seckit_xss[csp][report-uri]' => $this->reportPath,
+      'seckit_xss[csp][upgrade-req]' => TRUE,
     ];
     $this->drupalPostForm('admin/config/system/seckit', $form, t('Save configuration'));
-    $expected = 'default-src *; script-src *; object-src *; style-src *; img-src *; media-src *; frame-src *; frame-ancestors *; child-src *; font-src *; connect-src *; report-uri ' . base_path() . $this->reportPath;
+    $expected = 'default-src *; script-src *; object-src *; style-src *; img-src *; media-src *; frame-src *; frame-ancestors *; child-src *; font-src *; connect-src *; report-uri ' . base_path() . $this->reportPath . '; upgrade-insecure-requests';
     $this->assertEqual($expected, $this->drupalGetHeader('Content-Security-Policy'), t('Content-Security-Policy has all the directives.'));
     $this->assertEqual($expected, $this->drupalGetHeader('X-Content-Security-Policy'), t('X-Content-Security-Policy has all the directives.'));
     $this->assertFalse($this->drupalGetHeader('X-WebKit-CSP'), t('Vendor prefixed X-WebKit-CSP header is disabled.'));
@@ -178,9 +181,10 @@ class SecKitTestCaseTest extends WebTestBase {
       'seckit_xss[csp][font-src]' => '*',
       'seckit_xss[csp][connect-src]' => '*',
       'seckit_xss[csp][report-uri]' => $this->reportPath,
+      'seckit_xss[csp][upgrade-req]' => TRUE,
     ];
     $this->drupalPostForm('admin/config/system/seckit', $form, t('Save configuration'));
-    $expected = 'default-src *; script-src *; object-src *; style-src *; img-src *; media-src *; frame-src *; frame-ancestors *; child-src *; font-src *; connect-src *; report-uri ' . base_path() . $this->reportPath;
+    $expected = 'default-src *; script-src *; object-src *; style-src *; img-src *; media-src *; frame-src *; frame-ancestors *; child-src *; font-src *; connect-src *; report-uri ' . base_path() . $this->reportPath . '; upgrade-insecure-requests';
     $this->assertEqual($expected, $this->drupalGetHeader('Content-Security-Policy'), t('Content-Security-Policy has all the directives.'));
     $this->assertFalse($this->drupalGetHeader('X-Content-Security-Policy'), t('Vendor prefixed X-Content-Security-Policy header is disabled.'));
     $this->assertEqual($expected, $this->drupalGetHeader('X-WebKit-CSP'), t('X-WebKit-CSP has all the directives.'));
@@ -238,6 +242,7 @@ class SecKitTestCaseTest extends WebTestBase {
       'seckit_xss[csp][font-src]' => '',
       'seckit_xss[csp][connect-src]' => '',
       'seckit_xss[csp][report-uri]' => $this->reportPath,
+      'seckit_xss[csp][upgrade-req]' => FALSE,
       'seckit_xss[csp][policy-uri]' => '',
     ];
     $this->drupalPostForm('admin/config/system/seckit', $form, t('Save configuration'));

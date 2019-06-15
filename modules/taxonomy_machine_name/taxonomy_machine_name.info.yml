@@ -5,17 +5,17 @@ package: Other
 # core: 8.x
 
 dependencies:
-  - taxonomy
+  - drupal:taxonomy
 
 simplytest_dependencies:
-  - entity
-  - views
-  - views_ui
-  - rules
-  - rules_ui
+  - entity:entity
+  - drupal:views
+  - drupal:views_ui
+  - rules:rules
+  - rules:rules_ui
 
-# Information added by Drupal.org packaging script on 2017-05-17
-version: '8.x-1.0-alpha4'
+# Information added by Drupal.org packaging script on 2019-06-06
+version: '8.x-1.0-beta4'
 core: '8.x'
 project: 'taxonomy_machine_name'
-datestamp: 1495030705
+datestamp: 1559851387

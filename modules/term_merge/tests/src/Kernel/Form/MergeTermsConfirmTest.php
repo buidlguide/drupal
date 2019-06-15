@@ -182,8 +182,8 @@ class MergeTermsConfirmTest extends MergeTermsTestBase {
    *   The status message text.
    */
   private function assertSingleErrorMessage($expectedMessage) {
-    $messages = drupal_get_messages();
-    $errorMessages = $messages['error'];
+    $messages = \Drupal::messenger()->all();
+    $errorMessages = \Drupal::messenger()->messagesByType('error');
 
     self::assertCount(1, $messages);
     self::assertEquals($expectedMessage, array_pop($errorMessages));
@@ -293,12 +293,10 @@ class MergeTermsConfirmTest extends MergeTermsTestBase {
       '%target' => 'Target',
     ];
     $expected = [
-      'status' => [
-        new TranslatableMarkup('Successfully merged %count terms into %target', $arguments),
-      ],
+      new TranslatableMarkup('Successfully merged %count terms into %target', $arguments),
     ];
 
-    self::assertEquals($expected, drupal_get_messages('status'));
+    self::assertEquals($expected, \Drupal::messenger()->messagesByType('status'));
   }
 
   /**

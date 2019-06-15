@@ -16,3 +16,10 @@ function taxonomy_machine_name_views_plugins_argument_validator_alter(array &$pl
     'provider' => 'taxonomy_machine_name',
   ];
 }
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function taxonomy_machine_name_views_data_alter(array &$data) {
+  $data["taxonomy_term_field_data"]["machine_name"]["filter"]["id"] = 'taxonomy_index_machine_name';
+}

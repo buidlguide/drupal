@@ -5,8 +5,8 @@ package: Security
 configure: seckit.settings
 type: module
 
-# Information added by Drupal.org packaging script on 2019-03-12
-version: '8.x-1.1+10-dev'
+# Information added by Drupal.org packaging script on 2019-06-11
+version: '8.x-1.2-rc2'
 core: '8.x'
 project: 'seckit'
-datestamp: 1552408091
+datestamp: 1560265990

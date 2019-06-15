@@ -144,6 +144,14 @@ class SecKitSettingsForm extends ConfigFormBase {
       '#return_value' => 1,
       '#description' => $this->t('Send vendor-prefixed X-WebKit-CSP HTTP response headers with the list of Content Security Policy directives.'),
     ];
+    // CSP Upgrade Insecure Requests
+    $form['seckit_xss']['csp']['upgrade-req'] = [
+      '#type' => 'checkbox',
+      '#default_value' => $config->get('seckit_xss.csp.upgrade-req'),
+      '#title' => $this->t('Enable Upgrade Insecure Requests'),
+      '#return_value' => 1,
+      '#description' => $this->t('Upgrade Insecure Requests (upgrade-insecure-requests) instructs user agents to rewrite URL schemes, changing HTTP to HTTPS. This directive is used to protect your visitors from insecure content or for websites with large numbers of old URL\'s that need to be rewritten.'),
+    ];
     // CSP report-only mode.
     $form['seckit_xss']['csp']['report-only'] = [
       '#type' => 'checkbox',
@@ -266,13 +274,11 @@ class SecKitSettingsForm extends ConfigFormBase {
       '#title' => 'connect-src',
       '#description' => $this->t('Specify trustworthy sources for XMLHttpRequest, WebSocket and EventSource connections.'),
     ];
-
-    $report_default = !empty($config->get('seckit_xss.csp.report-uri')) ? $config->get('seckit_xss.csp.report-uri') : SeckitInterface::CSP_REPORT_URL;
     // CSP report-uri directive.
     $form['seckit_xss']['csp']['report-uri'] = [
       '#type' => 'textfield',
       '#maxlength' => 1024,
-      '#default_value' => $report_default,
+      '#default_value' => $config->get('seckit_xss.csp.report-uri'),
       '#title' => 'report-uri',
       '#description' => $this->t('Specify a URL (can be relative to the Drupal root, or absolute) to which user-agents will report CSP violations. Use the default value, unless you have set up an alternative handler for these reports. Note that if you specify a custom relative path, it should typically be accessible by all users (including anonymous). Defaults to <code>@report-url</code> which logs the report data.', ['@report-url' => SeckitInterface::CSP_REPORT_URL]),
     ];
@@ -691,11 +697,12 @@ class SecKitSettingsForm extends ConfigFormBase {
       'no-referrer' => 'no-referrer',
       'no-referrer-when-downgrade' => 'no-referrer-when-downgrade',
       'same-origin' => 'same-origin',
+      'origin' => 'origin',
       'strict-origin' => 'strict-origin',
       'origin-when-cross-origin' => 'origin-when-cross-origin',
       'strict-origin-when-cross-origin' => 'strict-origin-when-cross-origin',
       'unsafe-url' => 'unsafe-url',
-      'empty' => $this->t('"" (empty string)'),
+      '""' => $this->t('"" (empty string)'),
     ];
     $form['seckit_various']['referrer_policy_policy'] = [
       '#type' => 'select',

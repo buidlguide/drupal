@@ -50,6 +50,6 @@ interface SeckitInterface {
   /**
   * Set the URI to POST to for the CSP report-uri directive.
   */
-  const CSP_REPORT_URL = 'report-csp-violation';
+  const CSP_REPORT_URL = '/report-csp-violation';
 
 }

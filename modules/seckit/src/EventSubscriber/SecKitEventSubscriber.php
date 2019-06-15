@@ -211,6 +211,7 @@ class SecKitEventSubscriber implements EventSubscriberInterface {
     $csp_font_src = $this->config->get('seckit_xss.csp.font-src');
     $csp_connect_src = $this->config->get('seckit_xss.csp.connect-src');
     $csp_report_uri = $this->config->get('seckit_xss.csp.report-uri');
+    $csp_upgrade_req = $this->config->get('seckit_xss.csp.upgrade-req');
     // $csp_policy_uri = $this->config->get('seckit_xss.csp.policy-uri');
     // Prepare directives.
     $directives = [];
@@ -264,6 +265,9 @@ class SecKitEventSubscriber implements EventSubscriberInterface {
         $base_path = base_path();
       }
       $directives[] = "report-uri " . $base_path . $csp_report_uri;
+    }
+    if ($csp_upgrade_req) {
+      $directives[] = 'upgrade-insecure-requests';
     }
     // Merge directives.
     $directives = implode('; ', $directives);

@@ -10,14 +10,13 @@
         "drupal/social_auth_facebook": "~2.0",
         "drupal/social_auth_github": "^2.0",
         "drupal/social_auth_google": "^2.0",
-        "drupal/social_auth_linkedin": "^2.0",
+        "drupal/social_auth_linkedin": "2.0-beta3",
         "drupal/social_auth_reddit": "~2.0",
         "drupal/social_auth_twitter": "^2.0",
         "drupal/social_post_facebook": "2.x-dev",
-        "drupal/social_post_linkedin": "2.x-dev",
         "drupal/swiftmailer": "^1.0",
         "aws/aws-sdk-php": "^3.92",
-        "drupal/fast_404": "1.x-dev"
+        "drupal/fast_404": "1.x-dev"	
     },
     "replace": {
         "drupal/core": "^8.7"

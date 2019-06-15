@@ -107,6 +107,7 @@ class SchedulerManager {
         ->exists('publish_on')
         ->condition('publish_on', $this->time->getRequestTime(), '<=')
         ->condition('type', $scheduler_enabled_types, 'IN')
+        ->latestRevision()
         ->sort('publish_on')
         ->sort('nid');
       // Disable access checks for this query.
@@ -126,7 +127,7 @@ class SchedulerManager {
     // the list of node ids returned above may have some translations that need
     // processing now and others that do not.
     /** @var \Drupal\node\NodeInterface[] $nodes */
-    $nodes = $this->entityTypeManager->getStorage('node')->loadMultiple($nids);
+    $nodes = $this->loadNodes($nids);
     foreach ($nodes as $node_multilingual) {
 
       // The API calls could return nodes of types which are not enabled for
@@ -198,6 +199,19 @@ class SchedulerManager {
         // calls to $node->save().
         $node->publish_on->value = NULL;
 
+        // Invoke all implementations of hook_scheduler_publish_action() to
+        // allow other modules to do the "publishing" process instead of
+        // Scheduler.
+        $hook = 'scheduler_publish_action';
+        $processed = FALSE;
+        $failed = FALSE;
+        foreach ($this->moduleHandler->getImplementations($hook) as $module) {
+          $function = $module . '_' . $hook;
+          $return = $function($node);
+          $processed = $processed || ($return === 1);
+          $failed = $failed || ($return === -1);
+        }
+
         // Log the fact that a scheduled publication is about to take place.
         $view_link = $node->toLink($this->t('View node'));
         $node_type = $this->entityTypeManager->getStorage('node_type')->load($node->bundle());
@@ -206,11 +220,27 @@ class SchedulerManager {
           '@type' => $node_type->label(),
           '%title' => $node->getTitle(),
           'link' => $node_type_link->toString() . ' ' . $view_link->toString(),
+          '@hook' => 'hook_' . $hook,
         ];
-        $this->logger->notice('@type: scheduled publishing of %title.', $logger_variables);
 
-        // Use the actions system to publish the node.
-        $this->entityTypeManager->getStorage('action')->load('node_publish_action')->getPlugin()->execute($node);
+        if ($failed) {
+          // At least one hook function returned a failure or exception, so stop
+          // processing this node and move on to the next one.
+          $this->logger->warning('Publishing failed for %title. Calls to @hook returned a failure code.', $logger_variables);
+          continue;
+        }
+        elseif ($processed) {
+          // The node had 'publishing' processed by a module implementing the
+          // hook, so no need to do anything more, apart from log this result.
+          $this->logger->notice('@type: scheduled processing of %title completed by calls to @hook.', $logger_variables);
+        }
+        else {
+          // None of the above hook calls processed the node and there were no
+          // errors detected so fall back to the standard actions system to
+          // publish the node.
+          $this->logger->notice('@type: scheduled publishing of %title.', $logger_variables);
+          $this->entityTypeManager->getStorage('action')->load('node_publish_action')->getPlugin()->execute($node);
+        }
 
         // Invoke the event to tell Rules that Scheduler has published the node.
         if ($this->moduleHandler->moduleExists('scheduler_rules_integration')) {
@@ -252,6 +282,7 @@ class SchedulerManager {
         ->exists('unpublish_on')
         ->condition('unpublish_on', $this->time->getRequestTime(), '<=')
         ->condition('type', $scheduler_enabled_types, 'IN')
+        ->latestRevision()
         ->sort('unpublish_on')
         ->sort('nid');
       // Disable access checks for this query.
@@ -267,7 +298,7 @@ class SchedulerManager {
     $this->moduleHandler->alter('scheduler_nid_list', $nids, $action);
 
     /** @var \Drupal\node\NodeInterface[] $nodes */
-    $nodes = $this->entityTypeManager->getStorage('node')->loadMultiple($nids);
+    $nodes = $this->loadNodes($nids);
     foreach ($nodes as $node_multilingual) {
       // The API calls could return nodes of types which are not enabled for
       // scheduled unpublishing. Do not process these.
@@ -336,7 +367,20 @@ class SchedulerManager {
         // calls to $node->save().
         $node->unpublish_on->value = NULL;
 
-        // Log the fact that a scheduled unpublication is about to take place.
+        // Invoke all implementations of hook_scheduler_unpublish_action() to
+        // allow other modules to do the "unpublishing" process instead of
+        // Scheduler.
+        $hook = 'scheduler_unpublish_action';
+        $processed = FALSE;
+        $failed = FALSE;
+        foreach ($this->moduleHandler->getImplementations($hook) as $module) {
+          $function = $module . '_' . $hook;
+          $return = $function($node);
+          $processed = $processed || ($return === 1);
+          $failed = $failed || ($return === -1);
+        }
+
+        // Set up the log variables.
         $view_link = $node->toLink($this->t('View node'));
         $node_type = $this->entityTypeManager->getStorage('node_type')->load($node->bundle());
         $node_type_link = $node_type->toLink($this->t('@label settings', ['@label' => $node_type->label()]), 'edit-form');
@@ -344,11 +388,27 @@ class SchedulerManager {
           '@type' => $node_type->label(),
           '%title' => $node->getTitle(),
           'link' => $node_type_link->toString() . ' ' . $view_link->toString(),
+          '@hook' => 'hook_' . $hook,
         ];
-        $this->logger->notice('@type: scheduled unpublishing of %title.', $logger_variables);
 
-        // Use the actions system to unpublish the node.
-        $this->entityTypeManager->getStorage('action')->load('node_unpublish_action')->getPlugin()->execute($node);
+        if ($failed) {
+          // At least one hook function returned a failure or exception, so stop
+          // processing this node and move on to the next one.
+          $this->logger->warning('Unpublishing failed for %title. Calls to @hook returned a failure code.', $logger_variables);
+          continue;
+        }
+        elseif ($processed) {
+          // The node has 'unpublishing' processed by a module implementing the
+          // hook, so no need to do anything more, apart from log this result.
+          $this->logger->notice('@type: scheduled processing of %title completed by calls to @hook.', $logger_variables);
+        }
+        else {
+          // None of the above hook calls processed the node and there were no
+          // errors detected so fall back to the standard actions system to
+          // unpublish the node.
+          $this->logger->notice('@type: scheduled unpublishing of %title.', $logger_variables);
+          $this->entityTypeManager->getStorage('action')->load('node_unpublish_action')->getPlugin()->execute($node);
+        }
 
         // Invoke event to tell Rules that Scheduler has unpublished this node.
         if ($this->moduleHandler->moduleExists('scheduler_rules_integration')) {
@@ -462,6 +522,33 @@ class SchedulerManager {
    */
   protected function setting($key) {
     return $this->configFactory->get('scheduler.settings')->get($key);
+  }
+
+  /**
+   * Helper method to load latest revision of each node.
+   *
+   * @param array $nids
+   *   Array of node ids.
+   *
+   * @return array
+   *   Array of loaded nodes.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   */
+  protected function loadNodes(array $nids) {
+    $node_storage = $this->entityTypeManager->getStorage('node');
+    $nodes = [];
+
+    // Load the latest revision for each node.
+    foreach ($nids as $nid) {
+      $node = $node_storage->load($nid);
+      $revision_ids = $node_storage->revisionIds($node);
+      $vid = end($revision_ids);
+      $nodes[] = $node_storage->loadRevision($vid);
+    }
+
+    return $nodes;
   }
 
 }

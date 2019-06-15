@@ -185,9 +185,33 @@ class ReferenceMigrator {
         continue;
       }
 
-      $entity->{$fieldName}->setValue($values);
+      $entity->{$fieldName}->setValue($this->removeDuplicates($values));
       $entity->save();
     }
+  }
+
+  /**
+   * Removes duplicate references from the values array.
+   *
+   * @param array $values
+   *   The values array.
+   *
+   * @return array
+   *   The values array without duplicates.
+   */
+  private function removeDuplicates(array $values) {
+    $unique = [];
+
+    foreach ($values as $id => $value) {
+      if (isset($unique[$value['target_id']])) {
+        unset($values[$id]);
+        continue;
+      }
+
+      $unique[$value['target_id']] = $value['target_id'];
+    }
+
+    return array_values($values);
   }
 
 }

@@ -91,7 +91,7 @@ abstract class MergeTermsTestBase extends KernelTestBase {
     $this->installSchema('system', ['key_value_expire']);
 
     $accountProxy = new AccountProxy();
-    $account = self::getMock(AccountInterface::class);
+    $account = $this->createMock(AccountInterface::class);
     $account->method('id')->willReturn(24);
     /** @var \Drupal\Core\Session\AccountInterface $account */
     $accountProxy->setAccount($account);

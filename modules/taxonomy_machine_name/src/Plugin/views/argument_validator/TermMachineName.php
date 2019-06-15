@@ -90,7 +90,6 @@ class TermMachineName extends Entity {
       }
     }
 
-    $this->argument->realField = 'tid';
     $this->argument->argument = $term->id();
 
     // Property created dynamically.

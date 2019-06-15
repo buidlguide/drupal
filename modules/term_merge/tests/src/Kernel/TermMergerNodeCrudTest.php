@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\term_merge\Kernel;
 
-use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
 use Drupal\term_merge\TermMerger;
+use Drupal\Tests\field\Traits\EntityReferenceTestTrait;
 use Drupal\Tests\node\Traits\ContentTypeCreationTrait;
 use Drupal\Tests\node\Traits\NodeCreationTrait;
 

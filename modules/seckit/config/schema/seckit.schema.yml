@@ -62,6 +62,9 @@ seckit.settings:
             report-uri:
               type: string
               label: 'Report URI'
+            upgrade-req:
+              type: boolean
+              label: 'Upgrade Insecure Requests'
             policy-uri:
               type: string
               label: 'Policy URI'

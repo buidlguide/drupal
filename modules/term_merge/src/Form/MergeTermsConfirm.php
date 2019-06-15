@@ -5,10 +5,10 @@ namespace Drupal\term_merge\Form;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\taxonomy\TermInterface;
 use Drupal\taxonomy\VocabularyInterface;
 use Drupal\term_merge\TermMergerInterface;
-use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -33,7 +33,7 @@ class MergeTermsConfirm extends FormBase {
   /**
    * The private temporary storage factory.
    *
-   * @var \Drupal\user\PrivateTempStoreFactory
+   * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
   private $tempStoreFactory;
 
@@ -56,7 +56,7 @@ class MergeTermsConfirm extends FormBase {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity manager service.
-   * @param \Drupal\user\PrivateTempStoreFactory $tempStoreFactory
+   * @param \Drupal\Core\TempStore\PrivateTempStoreFactory $tempStoreFactory
    *   The private temporary storage factory.
    * @param \Drupal\term_merge\TermMergerInterface $termMerger
    *   The term merger service.
@@ -74,7 +74,7 @@ class MergeTermsConfirm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('user.private_tempstore'),
+      $container->get('tempstore.private'),
       $container->get('term_merge.term_merger')
     );
   }
@@ -100,7 +100,7 @@ class MergeTermsConfirm extends FormBase {
     $selectedTermIds = $this->getSelectedTermIds();
 
     if (empty($selectedTermIds)) {
-      drupal_set_message($this->t("You must submit at least one term."), 'error');
+      $this->messenger()->addError($this->t("You must submit at least one term."), 'error');
       return $form;
     }
 
@@ -244,7 +244,7 @@ class MergeTermsConfirm extends FormBase {
       '%count' => $count,
       '%target' => $targetName,
     ];
-    drupal_set_message($this->t('Successfully merged %count terms into %target', $arguments));
+    $this->messenger()->addStatus($this->t('Successfully merged %count terms into %target', $arguments));
   }
 
 }
