@@ -1224,6 +1224,30 @@ text-align: left;
   font-size: 13px !important;
   font-weight: bold;
 }
+body.path-taxonomy .org-img img {
+  height: 30px;
+  width: auto;
+  margin-right: 15px; 
+}
+body.page-taxonomy-eb_platform {
+  margin-top: 0px;
+}
+.ppt-menu {
+  position: absolute;
+  right: 30px;
+  top: 15px;
+  z-index: 234;
+  font-size: 1.2em;  
+}
+.ppt-menu ul {
+
+}
+.ppt-menu ul li {
+
+}
+.ppt-menu ul li a{
+  
+}
 @keyframes grey {
   from {
     webkit-filter: grayscale(0);

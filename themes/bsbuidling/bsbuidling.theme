@@ -1,11 +1,20 @@
 <?php
 
+
+use Drupal\taxonomy\Entity\Term;
+
+
 function bsbuidling_preprocess_page(&$variables) {
 
   _buidl_guide_get_support_link($variables);
 }  
 
-
+function bsbuidling_preprocess_html(&$variables) {
+  if (\Drupal::routeMatch()->getRouteName() == 'entity.taxonomy_term.canonical' && $tid = \Drupal::routeMatch()->getRawParameter('taxonomy_term')) {
+    $term = Term::load($tid);
+    $variables['attributes']['class'][] = 'page-taxonomy-' . $term->getVocabularyId();
+  }
+}
 
 /**
  * Implements hook_theme_suggestions_container_alter().
@@ -26,6 +35,10 @@ function bsbuidling_theme_suggestions_container_alter(array &$suggestions, array
 function bsbuidling_theme_suggestions_page_alter(array &$suggestions, array $variables) {
   if ($node = \Drupal::routeMatch()->getParameter('node')) {
     $suggestions[] = 'page__node__' . $node->bundle();
+  }
+  if (\Drupal::routeMatch()->getRouteName() == 'entity.taxonomy_term.canonical' && $tid = \Drupal::routeMatch()->getRawParameter('taxonomy_term')) {
+    $term = Term::load($tid);
+    $suggestions[] = 'page__taxonomy__' . $term->getVocabularyId();
   }
 }
 

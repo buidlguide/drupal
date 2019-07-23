@@ -1,0 +1,116 @@
+{% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
+{# Navbar #}
+
+{% if page.header_2 %}
+  <div class = "container-fluid continer-header-2" data-spy="affix"  data-offset-top="150">
+    {{ page.header_2 }}
+  </div>
+{% endif %}
+
+
+{# Main #}
+{% block main %}
+  <div role="main" class="page-taxonomy-platform main-container {{ container }} js-quickedit-main-content">
+    <div class="row">
+
+
+
+      {# Sidebar First #}
+      {% if page.sidebar_first %}
+        {% block sidebar_first %}
+          <aside class="col-sm-3" role="complementary">
+            {{ page.sidebar_first }}
+          </aside>
+        {% endblock %}
+      {% endif %}
+
+      {# Content #}
+      {%
+        set content_classes = [
+          page.sidebar_first and page.sidebar_second ? 'col-sm-6',
+          page.sidebar_first and page.sidebar_second is empty ? 'col-sm-9',
+          page.sidebar_second and page.sidebar_first is empty ? 'col-sm-9',
+          page.sidebar_first is empty and page.sidebar_second is empty ? 'col-sm-12'
+        ]
+      %}
+      <section{{ content_attributes.addClass(content_classes) }}>
+
+        {# Highlighted #}
+        {% if page.highlighted %}
+          {% block highlighted %}
+            <div class="highlighted">{{ page.highlighted }}</div>
+          {% endblock %}
+        {% endif %}
+
+        {# Help #}
+        {% if page.help %}
+          {% block help %}
+            {{ page.help }}
+          {% endblock %}
+        {% endif %}
+
+        {# Content #}
+        {% block content %}
+          <a id="main-content"></a>
+          {{ page.content }}
+        {% endblock %}
+      </section>
+
+      {# Sidebar Second #}
+      {% if page.sidebar_second %}
+        {% block sidebar_second %}
+          <aside class="col-sm-3" role="complementary">
+            {{ page.sidebar_second }}
+          </aside>
+        {% endblock %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+<div class = "support-button-section {{container}}">
+<div class = "alert" role="alert">
+    <p>Click <strong><a href = "{{eb_support_url}}">"Support Now"</a></strong> and send message if you have any issues, questions, clarifications, recommendations, feedback, or need to contact us for any other reason.</p>
+</div>
+</div>
+
+<div class = "supportbox" url = "{{eb_support_url}}" id = "{{eb_entity_id}}" type = "{{eb_entity_type}}" >
+  <a href = "{{eb_support_url}}" class = "btn btn-success btn-md btn-rounded">Support Now</a>
+</div>
+
+{% if page.bottom_navs %}
+<section class = "bottom_navs" id = "section_bottom_navs">
+  <div class = "{{ container }}">
+    <div class = "row">
+      <div class = "col-md-12">
+        {{ page.bottom_navs }}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if page.footer_a or page.footer_b or page.footer_c %}
+  <footer class="footer" id = "page_footer" role="contentinfo">
+    <div class = "{{ container }}">
+      <div class = "row">
+        {% if page.footer_a %}
+          <div class = "col-sm-3 col-md-2 footer_a">
+            {{ page.footer_a }}
+          </div>
+        {% endif %}
+        {% if page.footer_b %}
+          <div class = "col-sm-5 col-md-5 footer_b">
+            {{ page.footer_b }}
+          </div>
+        {% endif %}
+        {% if page.footer_c %}
+          <div class = "col-sm-4 col-md-5 footer_c"> 
+            {{ page.footer_c }}
+          </div>
+        {% endif %}                
+      </div>
+    </div>
+  </footer>
+{% endif %}
+
