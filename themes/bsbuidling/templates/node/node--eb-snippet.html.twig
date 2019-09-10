@@ -83,6 +83,7 @@
   {% if content.field_eb_body %}<div class="search-result-excerpt">{% spaceless %}{{ content.field_eb_body|render|striptags }} {% endspaceless %}</div>{% endif %}
   <div class = "tags">
     <ul>
+      {{ content.field_eb_platforms }}
       <li class = "li-type">{{ node.type.entity.label }}</li>
       {{ content.field_eb_categories }}
       {{ content.field_eb_tags }}

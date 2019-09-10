@@ -2,11 +2,11 @@
 
 namespace Drupal\role_based_theme_switcher\Theme;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Routing\AdminContext;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Theme\ThemeNegotiatorInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Session\AccountProxy;
+use Drupal\Core\Theme\ThemeNegotiatorInterface;
 
 /**
  * Sets the active theme on admin pages.
@@ -66,19 +66,12 @@ class RoleNegotiator implements ThemeNegotiatorInterface {
     $change_theme = TRUE;
     $route = $this->routeMatch->getRouteObject();
     $is_admin_route = $this->adminRoute->isAdminRoute($route);
-    $user_roles = $this->account->getRoles();
-    $has_admin_role = FALSE;
-    if (in_array("administrator", $user_roles)) {
-      $has_admin_role = TRUE;
-    }
-    if ($is_admin_route === TRUE && $has_admin_role === TRUE) {
-      $change_theme = FALSE;
-    }
-    if(isset($_GET['amp'])) {
+    if ($is_admin_route === TRUE && $this->account->hasPermission('view the administration theme') === TRUE) {
       $change_theme = FALSE;
     }
     // Here you return the actual theme name.
-    $roleThemes = $this->configFactory->get('role_based_theme_switcher.RoleBasedThemeSwitchConfig')->get('roletheme');
+    $roleThemes = $this->configFactory->get('role_based_theme_switcher.RoleBasedThemeSwitchConfig')
+      ->get('roletheme');
 
     // Get current roles a user has.
     $roles = $this->account->getRoles();
@@ -87,6 +80,30 @@ class RoleNegotiator implements ThemeNegotiatorInterface {
     $this->theme = $roleThemes[$theme_role]['id'];
 
     return $change_theme;
+  }
+
+  /**
+   * Function to get roles array and return highest priority role.
+   *
+   * @param array $roles
+   *   Array of roles.
+   *
+   * @return string
+   *   Return role.
+   */
+  public function getPriorityRole(array $roles) {
+    $themes = $this->configFactory->get('role_based_theme_switcher.RoleBasedThemeSwitchConfig')
+      ->get('roletheme');
+    if (isset($themes)) {
+      foreach ($themes as $key => $value) {
+        if (in_array($key, $roles)) {
+          $themeArr[$key] = $value['weight'];
+        }
+      }
+      $priRole = array_search(max($themeArr), $themeArr);
+      // Return role.
+      return $priRole;
+    }
   }
 
   /**
@@ -101,29 +118,6 @@ class RoleNegotiator implements ThemeNegotiatorInterface {
    */
   public function determineActiveTheme(RouteMatchInterface $route_match) {
     return $this->theme;
-  }
-
-  /**
-   * Function to get roles array and return highest priority role.
-   *
-   * @param array $roles
-   *   Array of roles.
-   *
-   * @return string
-   *   Return role.
-   */
-  public function getPriorityRole(array $roles) {
-    $themes = $this->configFactory->get('role_based_theme_switcher.RoleBasedThemeSwitchConfig')->get('roletheme');
-    if (isset($themes)) {
-      foreach ($themes as $key => $value) {
-        if (in_array($key, $roles)) {
-          $themeArr[$key] = $value['weight'];
-        }
-      }
-      $priRole = array_search(max($themeArr), $themeArr);
-      // Return role.
-      return $priRole;
-    }
   }
 
 }

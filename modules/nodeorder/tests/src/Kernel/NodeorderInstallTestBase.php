@@ -14,7 +14,7 @@ abstract class NodeorderInstallTestBase extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'filter', 'text', 'taxonomy'];
+  public static $modules = ['system', 'filter', 'text', 'taxonomy', 'user'];
 
   /**
    * The module installer.
@@ -39,8 +39,12 @@ abstract class NodeorderInstallTestBase extends KernelTestBase {
     $this->moduleInstaller = $this->container->get('module_installer');
     $this->database = $this->container->get('database');
 
+    $this->installEntitySchema('user');
+    $this->installSchema('user', ['users_data']);
+
     $this->installEntitySchema('taxonomy_term');
-    $this->installConfig(['filter', 'taxonomy']);
+
+    $this->installConfig(['filter', 'user', 'taxonomy']);
 
     // Manually load and enable/install module.
     // This allows to call hook_install() properly.

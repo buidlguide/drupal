@@ -5,8 +5,8 @@ package: Custom
 type: module
 # core: 8.x
 
-# Information added by Drupal.org packaging script on 2018-04-17
-version: '8.x-1.0+3-dev'
+# Information added by Drupal.org packaging script on 2019-08-07
+version: '8.x-1.0+5-dev'
 core: '8.x'
 project: 'role_based_theme_switcher'
-datestamp: 1523957593
+datestamp: 1565197392

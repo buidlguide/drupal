@@ -179,6 +179,7 @@ class TruncateHTML {
         if (($this->charCount + $length) >= $this->limit) {
           // We have found our end point.
           $node->nodeValue = Unicode::truncate($text, $this->limit - $this->charCount, TRUE);
+          $this->removeTrailingPunctuation($node);
           $this->removeProceedingNodes($node);
           $this->insertEllipsis($node);
           $this->foundBreakpoint = TRUE;
@@ -225,6 +226,7 @@ class TruncateHTML {
             $node->nodeValue = substr($node->nodeValue, 0, $last_word[1] + strlen($last_word[0]));
           }
 
+          $this->removeTrailingPunctuation($node);
           $this->removeProceedingNodes($node);
           $this->insertEllipsis($node);
           $this->foundBreakpoint = TRUE;
@@ -234,6 +236,18 @@ class TruncateHTML {
           $this->wordCount += $cur_count;
         }
       }
+    }
+  }
+
+  /**
+   * Removes certain punctuation from the end of the node value.
+   *
+   * @param \DOMNode $domnode
+   *   Node to be altered.
+   */
+  protected function removeTrailingPunctuation(\DOMNode $domnode) {
+    while (preg_match('/[\.,:;\?!…]$/', $domnode->nodeValue)) {
+      $domnode->nodeValue = substr($domnode->nodeValue, 0, -1);
     }
   }
 

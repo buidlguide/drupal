@@ -1,4 +1,4 @@
-services:  
+services:
   theme.negotiator.role_based_theme_switcher:
     class: Drupal\role_based_theme_switcher\Theme\RoleNegotiator
     arguments: ['@config.factory', '@router.admin_context', '@current_route_match', '@current_user']
